@@ -186,7 +186,6 @@
             margin-top: 15px;
         }
 
-        /* Countdown Style */
         .countdown-title {
             color: var(--neon-pink);
             font-family: 'Orbitron', sans-serif;
@@ -235,9 +234,20 @@
             margin-bottom: 15px;
         }
 
+        .reset-btn {
+            background: transparent;
+            border: none;
+            color: #555;
+            font-size: 0.7rem;
+            margin-top: 15px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
         .hidden { display: none !important; }
 
-        /* MODERN 3D ROCKET CSS */
+        /* ROCKET ANIMATION */
         .rocket-launch-wrapper {
             position: fixed;
             bottom: -250px;
@@ -289,15 +299,6 @@
             margin-top: -5px;
         }
 
-        .smoke-cloud {
-            width: 40px;
-            height: 100px;
-            background: radial-gradient(circle, rgba(200,200,200,0.4) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(8px);
-            margin-top: -60px;
-        }
-
         @keyframes thrusterPulse {
             0% { transform: scaleX(0.8) scaleY(0.9); opacity: 0.8; }
             100% { transform: scaleX(1.2) scaleY(1.1); opacity: 1; }
@@ -310,7 +311,7 @@
         }
     </style>
 </head>
-<body>
+<body onclick="initAudio()">
 
     <div class="stars"></div>
 
@@ -324,9 +325,10 @@
             <div class="holo-10">10</div>
             <p style="text-align: center; margin-bottom: 20px; color: #c2e9fb;">Bitte Agenten-Code eingeben:</p>
             <div class="input-group">
-                <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;" oninput="playTypingGateSound()">
+                <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;" oninput="playTypingSound()">
             </div>
             <button class="btn" onclick="login()">AKTE ÖFFNEN 🔓</button>
+            <button class="reset-btn" onclick="resetTestData()">[ RESET TEST DATA / CLEAR LOCKS ]</button>
         </div>
 
         <!-- INVITATION CARD VIEW -->
@@ -396,21 +398,11 @@
         </div>
     </div>
 
-    <!-- SOUND EFFECTS -->
-    <!-- صدای تایپ: صدای سنگین باز شدن هیدرولیکی دروازه -->
-    <audio id="typingGateSfx" src="https://assets.mixkit.co/active_storage/sfx/884/884-preview.mp3" preload="auto"></audio>
-    <!-- صدای باز شدن کامل اکتیو پرونده: صدای حماسی باز شدن سیستم فوق سری -->
-    <audio id="vaultOpenSfx" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
-    <!-- صدای موتور راکت -->
-    <audio id="rocketSfx" src="https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3" preload="auto"></audio>
-    <!-- صدای تیک تاک تایمر -->
-    <audio id="tickSfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
-
     <script>
-        // ✉️ آدرس ایمیل خودت را دقیقاً جایگزین کن (بدون نیاز به ساخت اکانت)
-        const MY_EMAIL = "emran.ali@outlook.de";
+        const MY_EMAIL = "emran.ali@outlook.de"; // ایمیل خودتان را اینجا بنویسید
 
         const database = {
+            'TESTER': { name: 'Tester (Unrestricted)', isTester: true },
             'AFRA': { name: 'Afra' },
             'WILLIAM': { name: 'William' },
             'WIEHAN': { name: 'Wiehan' },
@@ -422,39 +414,97 @@
         };
 
         let currentAgent = null;
+        let audioCtx = null;
 
-        function playTypingGateSound() {
-            const sfx = document.getElementById('typingGateSfx');
-            sfx.currentTime = 0;
-            sfx.play().catch(()=>{});
+        // سیستم صوتی دیجیتال مستقیم مرورگر (بدون احتمال قطع شدن صدا)
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
         }
 
-        function playVaultOpenSound() {
-            const sfx = document.getElementById('vaultOpenSfx');
-            sfx.currentTime = 0;
-            sfx.play().catch(()=>{});
+        function playTypingSound() {
+            initAudio();
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
         }
 
-        function playRocketSound() {
-            const sfx = document.getElementById('rocketSfx');
-            sfx.currentTime = 0;
-            sfx.play().catch(()=>{});
+        function playGateOpenSound() {
+            initAudio();
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(440, audioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
         }
 
         function playTickSound() {
-            const sfx = document.getElementById('tickSfx');
-            sfx.currentTime = 0;
-            sfx.play().catch(()=>{});
+            initAudio();
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.03);
+        }
+
+        function playRocketSound() {
+            initAudio();
+            if(!audioCtx) return;
+            // صدای فرکانس بم موتور موشک
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(250, audioCtx.currentTime + 2.5);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 2.5);
+        }
+
+        function resetTestData() {
+            localStorage.clear();
+            alert('✅ تمام قفل‌ها و داده‌های تست پاکسازی شدند! اکنون می‌توانید دوباره با افرا یا کد تستر وارد شوید.');
         }
 
         function login() {
+            initAudio();
             const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
             
             if (database[codeInput]) {
-                playVaultOpenSound();
+                playGateOpenSound();
                 currentAgent = database[codeInput];
 
-                if (localStorage.getItem('mission_accepted_' + codeInput)) {
+                // اگر تستر باشد یا هنوز قبول نکرده باشد، کارت دعوت باز می‌شود
+                if (!currentAgent.isTester && localStorage.getItem('mission_accepted_' + codeInput)) {
                     showCountdownView(currentAgent.name);
                 } else {
                     document.getElementById('cardRecipient').innerText = `Für Agent ${currentAgent.name}`;
@@ -473,24 +523,24 @@
             playRocketSound();
 
             const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
-            localStorage.setItem('mission_accepted_' + codeInput, 'true');
+            
+            // ذخیره قفل فقط برای غیر تسترها
+            if (!currentAgent.isTester) {
+                localStorage.setItem('mission_accepted_' + codeInput, 'true');
+            }
 
-            // ارسال پیام مستقیم به ایمیل شما با FormSubmit
+            // ارسال ایمیل
             fetch(`https://formsubmit.co/ajax/${MY_EMAIL}`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
                     Subject: `🚀 BESTÄTIGUNG: Agent ${currentAgent.name} hat akzeptiert!`,
                     Agent: currentAgent.name,
-                    Status: "Einladung Akzeptiert",
-                    Zeitstempel: new Date().toLocaleString()
+                    Status: "Einladung Akzeptiert"
                 })
             }).catch(e => console.log('Send error:', e));
 
-            // پرتاب یکی پس از دیگری راکت‌های مدرن ۳D مستقیم به سمت بالا
+            // پرتاب یکی پس از دیگری راکت‌های مدرن
             const positions = [15, 38, 62, 85];
             positions.forEach((pos, index) => {
                 setTimeout(() => {
@@ -500,10 +550,9 @@
                     rocketWrap.innerHTML = `
                         <div class="cyber-rocket"></div>
                         <div class="fire-thruster"></div>
-                        <div class="smoke-cloud"></div>
                     `;
                     document.body.appendChild(rocketWrap);
-                }, index * 350); // پرتاب با تاخیر منظم یکی پس از دیگری
+                }, index * 350);
             });
 
             setTimeout(() => {
@@ -537,7 +586,6 @@
                     document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
                     document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
 
-                    // پخش صدای تیک تاک در هر ثانیه
                     playTickSound();
                 }
             }, 1000);
