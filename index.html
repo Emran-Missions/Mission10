@@ -235,13 +235,13 @@
 
             <div class="info-box">
                 <div class="info-title">FREIGEGEBENE INFORMATIONEN:</div>
-                <div class="info-item">📅 Sonntag, 4. Oktober</div>
+                <div class="info-item">📅 Samstag, 3. Oktober</div>
                 <div class="info-item">🕑 14:00 Uhr</div>
                 <div class="info-item">📍 Krefelder Str. 81, 41539 Dormagen</div>
                 <div class="info-item">💫 Der Rest bleibt eine Überraschung...</div>
             </div>
 
-            <div class="footer-call" id="cardFooter">WIR ZÄHLEN AUF EUCH!</div>
+            <div class="footer-call" id="cardFooter">WIR ZÄHLEN AUF DICH!</div>
             <br>
             <button class="btn" onclick="acceptMission()">MISSION AKZEPTIEREN 🚀</button>
         </div>
@@ -251,34 +251,14 @@
         const YOUR_WHATSAPP_NUMBER = '4915752084966'; 
 
         const database = {
-            'AFRA': {
-                recipient: 'Für Afra',
-                intro: 'Liebe Afra,<br>du wurdest ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.',
-                footer: 'Wir zählen auf dich, Agent Afra!',
-                isPlural: false,
-                name: 'Afra'
-            },
-            'WILL-WIEH': {
-                recipient: 'Für William und Wiehan',
-                intro: 'Liebe William und Wiehan,<br>ihr wurdet ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.',
-                footer: 'Wir zählen auf euch, Agenten William und Wiehan!',
-                isPlural: true,
-                name: 'William & Wiehan'
-            },
-            'WID-KIAN': {
-                recipient: 'Für Wida und Kian',
-                intro: 'Liebe Wida und lieber Kian,<br>ihr wurdet ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.',
-                footer: 'Wir zählen auf euch, Agenten Wida und Kian!',
-                isPlural: true,
-                name: 'Wida & Kian'
-            },
-            'SAH-SAM-MOH': {
-                recipient: 'Für Sahar, Sama und Mohammad',
-                intro: 'Liebe Sahar, Sama und Mohammad,<br>ihr wurdet ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.',
-                footer: 'Wir zählen auf euch, Agenten Sahar, Sama und Mohammad!',
-                isPlural: true,
-                name: 'Sahar, Sama & Mohammad'
-            }
+            'AFRA': { name: 'Afra' },
+            'WILLIAM': { name: 'William' },
+            'WIEHAN': { name: 'Wiehan' },
+            'WIDA': { name: 'Wida' },
+            'KIAN': { name: 'Kian' },
+            'SAHAR': { name: 'Sahar' },
+            'SAMA': { name: 'Sama' },
+            'MOHAMMAD': { name: 'Mohammad' }
         };
 
         let currentAgent = null;
@@ -310,9 +290,9 @@
             
             if (database[codeInput]) {
                 currentAgent = database[codeInput];
-                document.getElementById('cardRecipient').innerText = currentAgent.recipient;
-                document.getElementById('cardIntro').innerHTML = currentAgent.intro;
-                document.getElementById('cardFooter').innerText = currentAgent.footer;
+                document.getElementById('cardRecipient').innerText = `Für Agent ${currentAgent.name}`;
+                document.getElementById('cardIntro').innerHTML = `Liebe/r ${currentAgent.name},<br>du wurdest ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.`;
+                document.getElementById('cardFooter').innerText = `Wir zählen auf dich, Agent ${currentAgent.name}!`;
 
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('cardView').classList.remove('hidden');
@@ -332,7 +312,7 @@
 
             setTimeout(() => {
                 const message = encodeURIComponent(`Hallo! Agent ${currentAgent.name} hat die Mission (Geheimakte Nr. 10) AKZEPTIERT! 🚀✅`);
-                window.location.href = `https://wa.me/${YOUR_WHATSAPP_NUMBER}?text=${message}`;
+                window.location.href = `https://api.whatsapp.com/send?phone=${YOUR_WHATSAPP_NUMBER}&text=${message}`;
             }, 800);
         }
     </script>
