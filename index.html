@@ -1,612 +1,1259 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEHEIMAKTE NR. 10 - STRENG GEHEIM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --neon-blue: #00f0ff;
-            --neon-green: #00ff9d;
-            --neon-pink: #ff0055;
-            --bg-dark: #070a13;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Geheimakte Nr. 10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Chakra+Petch:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* Layout: one terminal card in the middle of a live starfield; full-screen blast doors and a rocket layer play over it */
+:root{
+  --bg:#04060e;
+  --panel:rgba(9,15,31,.86);
+  --line:rgba(0,240,255,.28);
+  --cyan:#00f0ff;
+  --green:#00ff9d;
+  --red:#ff2d55;
+  --amber:#ffb800;
+  --text:#e3f6ff;
+  --muted:#8aa4bd;
+  --ink:#001318;
+  --metal1:#1a2231;
+  --metal2:#0c111c;
+  --display:'Orbitron','Chakra Petch',system-ui,sans-serif;
+  --body:'Chakra Petch',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'Share Tech Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 12%,rgba(120,0,255,.22),transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 85%,rgba(0,240,255,.12),transparent 70%),
+    radial-gradient(ellipse 50% 40% at 10% 90%,rgba(255,45,85,.10),transparent 70%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.5;
+  margin:0;
+  min-height:100vh;
+  min-height:100dvh;
+  padding-inline:16px;
+  padding-block:56px 32px;
+  overflow-x:hidden;
+}
+#stars{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+.shell{position:relative;z-index:10;max-width:520px;margin:0 auto;will-change:transform}
+.soundbtn{position:fixed;top:12px;right:12px;z-index:80;display:inline-flex;align-items:center;gap:6px;background:rgba(9,15,31,.8);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:6px 11px;font:600 .8rem var(--mono);letter-spacing:.08em;cursor:pointer}
+.soundbtn svg{width:15px;height:15px}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 0 0 1px rgba(0,240,255,.05) inset,0 30px 80px -30px rgba(0,0,0,.9),0 0 40px rgba(0,240,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:hidden}
+.card::before,.card::after{content:"";position:absolute;width:22px;height:22px;border:2px solid var(--cyan);pointer-events:none}
+.card::before{top:8px;left:8px;border-right:0;border-bottom:0}
+.card::after{bottom:8px;right:8px;border-left:0;border-top:0}
+.scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
 
-        body {
-            background-color: var(--bg-dark);
-            color: #e0f7fc;
-            font-family: 'Share Tech Mono', monospace;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: 
-                radial-gradient(circle at 50% 20%, rgba(120, 0, 255, 0.25), transparent 60%),
-                radial-gradient(circle at 80% 80%, rgba(0, 240, 255, 0.15), transparent 50%),
-                radial-gradient(circle at 10% 90%, rgba(255, 0, 85, 0.15), transparent 50%);
-            overflow-x: hidden;
-            padding: 15px;
-        }
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:18px}
+.title{font:900 .95rem var(--display);letter-spacing:.12em;color:var(--cyan);text-shadow:0 0 12px rgba(0,240,255,.6)}
+.stamp{font:800 .7rem var(--display);letter-spacing:.14em;color:var(--text);background:var(--red);padding:4px 9px;border-radius:3px;box-shadow:0 0 14px rgba(255,45,85,.55);white-space:nowrap}
+.stamp.green{background:var(--green);color:var(--ink);box-shadow:0 0 14px rgba(0,255,157,.5)}
+.stamp.slam{animation:slam .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes slam{0%{transform:scale(2.6) rotate(-10deg);opacity:0}60%{opacity:1}100%{transform:scale(1) rotate(-3deg);opacity:1}}
 
-        .stars {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            background: 
-                radial-gradient(2px 2px at 20px 30px, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 150px 150px, #00f0ff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 250px 80px, #ff0055, rgba(0,0,0,0)),
-                radial-gradient(3px 3px at 350px 280px, #00ff9d, rgba(0,0,0,0));
-            background-size: 400px 400px;
-            animation: pulseStars 4s infinite alternate;
-        }
+.holo{position:relative;height:190px;display:grid;place-items:center;margin:4px 0 8px}
+.holo svg{position:absolute;inset:0;margin:auto;width:190px;height:190px}
+.ring{transform-origin:50% 50%;transform-box:fill-box}
+.r1{animation:spin 14s linear infinite}
+.r2{animation:spin 9s linear infinite reverse}
+.r3{animation:spin 22s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.holo-num{position:relative;font:900 5rem/1 var(--display);letter-spacing:.04em;background:linear-gradient(180deg,#fff 0%,var(--cyan) 55%,rgba(0,240,255,.25) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(0,240,255,.55));animation:flicker 5s infinite}
+@keyframes flicker{0%,100%{opacity:1}47%{opacity:1}48%{opacity:.55}49%{opacity:1}73%{opacity:.85}74%{opacity:1}}
+.prompt{text-align:center;color:var(--muted);font:600 .95rem var(--mono);letter-spacing:.06em;margin:0 0 12px}
+.codefield{position:relative}
+.codefield input{width:100%;padding:15px 14px;background:rgba(0,0,0,.55);border:1px solid var(--line);border-radius:8px;color:var(--text);font:400 1.5rem var(--mono);letter-spacing:.35em;text-align:center;text-transform:uppercase;outline:none;transition:border-color .15s,box-shadow .15s}
+.codefield input::placeholder{color:var(--muted);opacity:.5;letter-spacing:.2em;font-size:1rem}
+.codefield input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,240,255,.15),0 0 22px rgba(0,240,255,.25)}
+.codefield.bad input{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,45,85,.2),0 0 22px rgba(255,45,85,.3)}
+.msg{min-height:1.6em;margin:10px 0 6px;text-align:center;font:600 .92rem var(--mono);letter-spacing:.05em}
+.msg.bad{color:var(--red)}
+.msg.ok{color:var(--green)}
+.msg.info{color:var(--cyan)}
+.btn{width:100%;display:flex;justify-content:center;align-items:center;gap:10px;padding:15px;border:0;border-radius:8px;cursor:pointer;font:800 .95rem var(--display);letter-spacing:.12em;color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--green));box-shadow:0 0 22px rgba(0,240,255,.35);transition:transform .15s,box-shadow .15s,filter .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 0 32px rgba(0,255,157,.55)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{filter:grayscale(.6) brightness(.7);cursor:default}
+.btn svg{width:18px;height:18px}
+.btn:focus-visible,.soundbtn:focus-visible,.linkbtn:focus-visible,.ghost:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.foot{margin-top:14px;text-align:center;color:var(--muted);font:400 .78rem var(--mono);letter-spacing:.08em}
+.shake{animation:shake .45s}
+@keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-10px)}30%{transform:translateX(9px)}45%{transform:translateX(-7px)}60%{transform:translateX(5px)}80%{transform:translateX(-2px)}}
+.glitch{animation:glitch .35s steps(2) 2}
+@keyframes glitch{0%{clip-path:inset(0 0 0 0);transform:translate(0)}25%{clip-path:inset(20% 0 55% 0);transform:translate(-4px,1px)}50%{clip-path:inset(60% 0 10% 0);transform:translate(4px,-1px)}75%{clip-path:inset(35% 0 35% 0);transform:translate(-2px,0)}100%{clip-path:inset(0 0 0 0);transform:translate(0)}}
 
-        @keyframes pulseStars {
-            0% { opacity: 0.4; }
-            100% { opacity: 0.9; }
-        }
+.recipient{font:800 1.25rem var(--display);color:var(--green);letter-spacing:.04em;margin-bottom:10px;text-wrap:balance}
+.intro{color:#c2e9fb;font-size:1.02rem;min-height:4.6em;margin:0 0 16px}
+.intro .caret{display:inline-block;width:.55em;height:1em;background:var(--cyan);vertical-align:-.12em;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.intel{background:rgba(0,240,255,.06);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:4px 8px 8px 4px;padding:14px 16px;margin-bottom:18px}
+.intel-t{font:800 .78rem var(--display);letter-spacing:.14em;color:var(--green);margin-bottom:10px}
+.intel ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.intel li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;align-items:start;font-weight:600}
+.intel li svg{width:18px;height:18px;color:var(--cyan);margin-top:3px}
+.intel li small{display:block;color:var(--muted);font:400 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.call{text-align:center;font:800 .95rem var(--display);letter-spacing:.08em;color:var(--cyan);margin:0 0 16px;text-wrap:balance}
+.reveal{animation:reveal .6s ease-out both}
+@keyframes reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-        .card {
-            width: 100%;
-            max-width: 520px;
-            background: rgba(13, 23, 42, 0.88);
-            border: 2px solid var(--neon-blue);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 0 35px rgba(0, 240, 255, 0.35);
-            backdrop-filter: blur(12px);
-            position: relative;
-            z-index: 10;
-        }
+.badge{display:flex;gap:10px;align-items:center;background:rgba(0,255,157,.1);border:1px solid var(--green);color:var(--green);padding:11px 14px;border-radius:8px;font:700 .95rem var(--mono);letter-spacing:.05em;margin-bottom:14px}
+.badge svg{flex:none;width:20px;height:20px}
+.notice{text-align:center;color:var(--green);line-height:1.6;margin:0 0 18px}
+.notice b{color:var(--amber);letter-spacing:.06em}
+.cd-t{text-align:center;font:800 .9rem var(--display);letter-spacing:.14em;color:var(--red);text-shadow:0 0 10px rgba(255,45,85,.5)}
+.timer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0 16px}
+.tcell{background:rgba(0,0,0,.45);border:1px solid rgba(0,255,157,.45);border-radius:6px;padding:10px 4px;text-align:center;position:relative;overflow:hidden}
+.tnum{font:800 clamp(1.45rem,7vw,2rem)/1.1 var(--display);color:var(--green);font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(0,255,157,.45)}
+.tlab{font:400 .68rem var(--mono);letter-spacing:.14em;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.ghost{flex:1 1 180px;display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:12px 14px;border-radius:8px;border:1px solid var(--line);background:rgba(0,240,255,.06);color:var(--text);font:700 .9rem var(--body);letter-spacing:.04em;text-decoration:none;cursor:pointer}
+.ghost:hover{border-color:var(--cyan);background:rgba(0,240,255,.12)}
+.ghost svg{width:17px;height:17px;color:var(--green)}
+.small{text-align:center;color:var(--muted);font-size:.9rem;margin:16px 0 0}
+.linkbtn{display:block;margin:8px auto 0;background:none;border:0;color:var(--muted);font:400 .8rem var(--mono);letter-spacing:.08em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px dashed var(--neon-blue);
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-        }
+/* ---- blast doors ---- */
+.gate{position:fixed;inset:0;z-index:70;pointer-events:none;overflow:hidden}
+.door{position:absolute;top:0;bottom:0;width:50.4%;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 118px,rgba(0,0,0,.55) 118px 120px,rgba(255,255,255,.05) 120px 121px),
+    repeating-linear-gradient(90deg,transparent 0 58px,rgba(255,255,255,.035) 58px 59px),
+    linear-gradient(90deg,var(--metal2),var(--metal1) 40%,#232d40 70%,var(--metal2));
+  box-shadow:inset 0 0 60px rgba(0,0,0,.8);
+  transition:transform 1.25s cubic-bezier(.65,0,.15,1)}
+.door.l{left:0;transform:translateX(-101%)}
+.door.r{right:0;transform:translateX(101%)}
+.gate.closed .door{transform:translateX(0);transition:transform .36s cubic-bezier(.55,0,1,.45)}
+.door .haz{position:absolute;top:0;bottom:0;width:24px;background:repeating-linear-gradient(45deg,var(--amber) 0 12px,#111 12px 24px);opacity:.85}
+.door.l .haz{right:18px}
+.door.r .haz{left:18px}
+.door .edge{position:absolute;top:0;bottom:0;width:4px;background:var(--cyan);box-shadow:0 0 18px var(--cyan),0 0 40px rgba(0,240,255,.6);opacity:.25;transition:opacity .3s}
+.door.l .edge{right:0}
+.door.r .edge{left:0}
+.gate.lit .door .edge{opacity:1}
+.door .lamp{position:absolute;top:22px;width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red)}
+.door.l .lamp{right:56px}
+.door.r .lamp{left:56px}
+.gate.lit .door .lamp{background:var(--green);box-shadow:0 0 14px var(--green)}
+.door .plate{position:absolute;bottom:26px;font:400 .72rem var(--mono);letter-spacing:.2em;color:rgba(227,246,255,.35)}
+.door.l .plate{right:56px}
+.door.r .plate{left:56px}
+.lock{position:absolute;left:50%;top:50%;width:min(62vw,230px);height:min(62vw,230px);transform:translate(-50%,-50%) scale(.6);opacity:0;transition:opacity .25s,transform .35s cubic-bezier(.2,1.3,.4,1)}
+.gate.locked .lock{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.gate.release .lock{opacity:0;transform:translate(-50%,-50%) scale(1.25);transition:opacity .35s,transform .45s ease-in}
+.lock svg{width:100%;height:100%;overflow:visible}
+.lk-ring{transform-origin:50% 50%;transform-box:fill-box;transition:transform .9s cubic-bezier(.6,0,.2,1)}
+.gate.unlock .lk-a{transform:rotate(120deg)}
+.gate.unlock .lk-b{transform:rotate(-90deg)}
+.bolt{transition:transform .18s cubic-bezier(.5,0,.5,1)}
+.gate-msg{position:absolute;left:0;right:0;top:calc(50% + min(34vw,135px));text-align:center;font:900 clamp(.9rem,4vw,1.2rem) var(--display);letter-spacing:.24em;color:var(--red);text-shadow:0 0 14px currentColor;opacity:0;transition:opacity .2s}
+.gate.locked .gate-msg{opacity:1}
+.gate.lit .gate-msg{color:var(--green)}
+.gate.release .gate-msg{opacity:0}
+.flash{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(210,255,250,.85),rgba(0,240,255,.25) 35%,transparent 70%);opacity:0;transition:opacity .9s ease-out}
+.gate.flashing .flash{opacity:1;transition:opacity .08s}
 
-        .title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 900;
-            color: var(--neon-blue);
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
-        }
-
-        .stamp {
-            background: var(--neon-pink);
-            color: #fff;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 4px;
-            letter-spacing: 1px;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
-        }
-
-        .holo-10 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4.5rem;
-            font-weight: 900;
-            text-align: center;
-            margin: 10px 0;
-            background: linear-gradient(135deg, #ff007f, #00f0ff, #00ff9d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
-            letter-spacing: 2px;
-        }
-
-        .recipient {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            color: var(--neon-green);
-            margin-bottom: 12px;
-        }
-
-        .text-body {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #c2e9fb;
-            margin-bottom: 15px;
-        }
-
-        .info-box {
-            background: rgba(0, 240, 255, 0.08);
-            border-left: 4px solid var(--neon-green);
-            padding: 15px;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 20px;
-        }
-
-        .info-title {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--neon-green);
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-        }
-
-        .info-item {
-            margin-bottom: 6px;
-            font-size: 0.95rem;
-        }
-
-        .input-group { margin-bottom: 15px; }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0,0,0,0.6);
-            border: 1px solid var(--neon-blue);
-            color: #fff;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            border-radius: 8px;
-            outline: none;
-            text-align: center;
-        }
-
-        input:focus {
-            border-color: var(--neon-green);
-            box-shadow: 0 0 12px rgba(0, 255, 157, 0.5);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(90deg, #00f0ff, #00ff9d);
-            border: none;
-            border-radius: 8px;
-            color: #000;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
-        }
-
-        .btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 25px rgba(0, 255, 157, 0.7);
-        }
-
-        .footer-call {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--neon-blue);
-            text-align: center;
-            font-size: 0.95rem;
-            margin-top: 15px;
-        }
-
-        .countdown-title {
-            color: var(--neon-pink);
-            font-family: 'Orbitron', sans-serif;
-            text-align: center;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
-        }
-
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .time-box {
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--neon-green);
-            border-radius: 8px;
-            padding: 10px 5px;
-        }
-
-        .time-num {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.4rem;
-            color: var(--neon-green);
-            font-weight: 800;
-        }
-
-        .time-label {
-            font-size: 0.7rem;
-            color: #8faec4;
-            margin-top: 4px;
-        }
-
-        .status-badge {
-            background: rgba(0, 255, 157, 0.15);
-            border: 1px solid var(--neon-green);
-            color: var(--neon-green);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .hidden { display: none !important; }
-
-        .rocket-launch-wrapper {
-            position: fixed;
-            bottom: -250px;
-            z-index: 9999;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            animation: launchStraightUp 3.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        .cyber-rocket {
-            width: 24px;
-            height: 90px;
-            background: linear-gradient(to right, #e6e6e6, #ffffff, #888888);
-            border-radius: 50% 50% 10% 10% / 70% 70% 10% 10%;
-            position: relative;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
-        }
-
-        .cyber-rocket::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-bottom: 25px solid #ff0055;
-            border-radius: 50% 50% 0 0;
-        }
-
-        .cyber-rocket::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: -10px; right: -10px;
-            height: 20px;
-            background: #111;
-            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
-        }
-
-        .fire-thruster {
-            width: 16px;
-            height: 120px;
-            background: linear-gradient(to bottom, #ffffff, #ffcc00, #ff3300, transparent);
-            border-radius: 50%;
-            box-shadow: 0 0 30px #ff3300, 0 0 60px #ffaa00;
-            animation: thrusterPulse 0.08s infinite alternate;
-            margin-top: -5px;
-        }
-
-        @keyframes thrusterPulse {
-            0% { transform: scaleX(0.8) scaleY(0.9); opacity: 0.8; }
-            100% { transform: scaleX(1.2) scaleY(1.1); opacity: 1; }
-        }
-
-        @keyframes launchStraightUp {
-            0% { transform: translateY(0); opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-150vh); opacity: 0; }
-        }
-    </style>
+.launchcount{position:fixed;inset:0;z-index:75;display:grid;place-items:center;pointer-events:none;font:900 clamp(4rem,22vw,9rem) var(--display);color:var(--amber);text-shadow:0 0 30px rgba(255,184,0,.7)}
+.launchcount span{animation:cnt .75s ease-out both}
+@keyframes cnt{0%{transform:scale(1.8);opacity:0}25%{opacity:1}100%{transform:scale(.9);opacity:0}}
+/* phones */
+@media (max-width:440px){
+  body{padding-inline:12px;padding-block:54px 20px}
+  .card{padding:18px 16px;border-radius:12px}
+  .head{margin-bottom:14px;padding-bottom:10px}
+  .title{font-size:.82rem;letter-spacing:.1em}
+  .holo{height:150px}
+  .holo svg{width:150px;height:150px}
+  .holo-num{font-size:3.9rem}
+  .codefield input{font-size:1.3rem;letter-spacing:.28em;padding:13px 10px}
+  .btn{padding:14px 10px;font-size:.88rem;letter-spacing:.08em}
+  .recipient{font-size:1.1rem}
+  .intro{font-size:.98rem;min-height:5.2em}
+  .intel{padding:12px}
+  .notice{font-size:.95rem}
+  .tcell{padding:8px 2px}
+  .tlab{font-size:.58rem;letter-spacing:.08em}
+  .ghost{flex-basis:100%}
+}
+@media (max-height:700px){
+  .holo{height:118px}
+  .holo svg{width:118px;height:118px}
+  .holo-num{font-size:3.1rem}
+}
+.sendstate{display:flex;gap:8px;align-items:center;justify-content:center;margin:0 0 14px;font:400 .82rem var(--mono);letter-spacing:.05em;color:var(--muted);text-align:center}
+.sendstate.ok{color:var(--green)}
+.sendstate.bad{color:var(--amber)}
+.sendstate .dot{flex:none;width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+@media (prefers-reduced-motion:reduce){.r1,.r2,.r3,.holo-num,.intro .caret{animation:none}.shake,.glitch{animation:none}}
+</style>
 </head>
-<body onclick="initAudio()">
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
 
-    <div class="stars"></div>
+<button class="soundbtn" id="soundBtn" type="button" aria-pressed="true">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="soundWave" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+  <span id="soundLabel">TON AN</span>
+</button>
 
-    <div class="card">
-        <!-- LOGIN VIEW -->
-        <div id="loginView">
-            <div class="header">
-                <span class="title">🚀 SECURITY CLEARANCE</span>
-                <span class="stamp">LEVEL 10</span>
-            </div>
-            <div class="holo-10">10</div>
-            <p style="text-align: center; margin-bottom: 20px; color: #c2e9fb;">Bitte Agenten-Code eingeben:</p>
-            <div class="input-group">
-                <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;" oninput="playTypingSound()">
-            </div>
-            <button class="btn" onclick="login()">AKTE ÖFFNEN 🔓</button>
+<main class="shell" id="shell">
+  <div class="card" id="card">
+    <div class="scan" aria-hidden="true"></div>
+
+    <!-- LOGIN -->
+    <section id="loginView">
+      <div class="head">
+        <span class="title">SICHERHEITSFREIGABE</span>
+        <span class="stamp">LEVEL 10</span>
+      </div>
+      <div class="holo" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <g class="ring r1"><circle cx="100" cy="100" r="92" fill="none" stroke="#00f0ff" stroke-opacity=".5" stroke-width="1.5" stroke-dasharray="3 7"/></g>
+          <g class="ring r2"><circle cx="100" cy="100" r="80" fill="none" stroke="#00ff9d" stroke-opacity=".55" stroke-width="3" stroke-dasharray="60 18 8 18"/></g>
+          <g class="ring r3"><circle cx="100" cy="100" r="68" fill="none" stroke="#ff2d55" stroke-opacity=".45" stroke-width="1" stroke-dasharray="1 4"/><path d="M100 26 L104 34 L96 34 Z" fill="#00f0ff"/></g>
+        </svg>
+        <div class="holo-num">10</div>
+      </div>
+      <p class="prompt">&gt; AGENTEN-CODE EINGEBEN</p>
+      <form id="loginForm" autocomplete="off">
+        <div class="codefield" id="codeField">
+          <input id="agentCode" type="text" maxlength="16" placeholder="CODE" spellcheck="false" autocapitalize="characters" aria-label="Agenten-Code">
         </div>
+        <div class="msg" id="loginMsg" aria-live="polite"></div>
+        <button class="btn" id="loginBtn" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>
+          AKTE &Ouml;FFNEN
+        </button>
+      </form>
+      <p class="foot">KANAL VERSCHL&Uuml;SSELT &middot; TERMINAL DOR-10</p>
+    </section>
 
-        <!-- INVITATION CARD VIEW -->
-        <div id="cardView" class="hidden">
-            <div class="header">
-                <span class="title">⭐ GEHEIMAKTE NR. 10</span>
-                <span class="stamp">STRENG GEHEIM</span>
-            </div>
+    <!-- FILE -->
+    <section id="fileView" hidden>
+      <div class="head">
+        <span class="title">GEHEIMAKTE NR. 10</span>
+        <span class="stamp" id="fileStamp">STRENG GEHEIM</span>
+      </div>
+      <div class="recipient" id="cardRecipient">F&uuml;r Agent</div>
+      <p class="intro" id="cardIntro"></p>
+      <div class="intel reveal" id="intel">
+        <div class="intel-t">FREIGEGEBENE INFORMATIONEN</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span><small>Datum</small>Sonntag, 4. Oktober 2026</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><small>Uhrzeit</small>14:00 Uhr</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span><small>Treffpunkt</small>Krefelder Str. 81, 41539 Dormagen</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span><small>Rest</small>Der Rest bleibt eine &Uuml;berraschung ...</span></li>
+        </ul>
+      </div>
+      <p class="call" id="cardFooter">WIR Z&Auml;HLEN AUF DICH!</p>
+      <button class="btn" id="acceptBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c3 2.5 4.5 6 4.5 10.5L12 17l-4.5-4.5C7.5 8 9 4.5 12 2z"/><path d="M7.5 12.5 4 15l1 4 3.5-2M16.5 12.5 20 15l-1 4-3.5-2M10 19l2 3 2-3"/></svg>
+        MISSION AKZEPTIEREN
+      </button>
+    </section>
 
-            <div class="recipient" id="cardRecipient">Für Agent...</div>
-            <div class="text-body" id="cardIntro">...</div>
+    <!-- ACCEPTED -->
+    <section id="doneView" hidden>
+      <div class="head">
+        <span class="title">MISSION BEST&Auml;TIGT</span>
+        <span class="stamp green">AKTIV</span>
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>
+        <span>MISSION AKZEPTIERT VON AGENT <span id="acceptedName"></span></span>
+      </div>
+      <p class="sendstate" id="sendState" aria-live="polite"><span class="dot"></span><span id="sendText">MELDUNG AN DIE ZENTRALE WIRD GESENDET ...</span></p>
+      <p class="notice"><b>WICHTIGE MITTEILUNG</b><br>Du hast eine sehr wichtige Verantwortung &uuml;bernommen. Die Operation ist jetzt aktiv und dein Platz ist reserviert!</p>
+      <div class="cd-t">COUNTDOWN BIS ZUR MISSION</div>
+      <div class="timer" role="timer">
+        <div class="tcell"><div class="tnum" id="tD">00</div><div class="tlab">TAGE</div></div>
+        <div class="tcell"><div class="tnum" id="tH">00</div><div class="tlab">STUNDEN</div></div>
+        <div class="tcell"><div class="tnum" id="tM">00</div><div class="tlab">MINUTEN</div></div>
+        <div class="tcell"><div class="tnum" id="tS">00</div><div class="tlab">SEKUNDEN</div></div>
+      </div>
+      <div class="actions">
+        <a class="ghost" id="waLink" href="https://wa.me/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.4 7.9L3 21l1.2-4.4A9 9 0 1 1 21 12z"/><path d="m9 12 2 2 4-4"/></svg>
+          Zusage per WhatsApp senden
+        </a>
+        <a class="ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Krefelder%20Str.%2081%2C%2041539%20Dormagen" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Route zum Treffpunkt
+        </a>
+      </div>
+      <p class="small" id="doneNote">Sei p&uuml;nktlich am Treffpunkt. Keine Ausreden!</p>
+      <button class="linkbtn" id="switchBtn" type="button">Anderen Code eingeben</button>
+    </section>
+  </div>
+</main>
 
-            <div class="info-box">
-                <div class="info-title">FREIGEGEBENE INFORMATIONEN:</div>
-                <div class="info-item">📅 Sonntag, 4. Oktober 2026</div>
-                <div class="info-item">🕑 14:00 Uhr</div>
-                <div class="info-item">📍 Krefelder Str. 81, 41539 Dormagen</div>
-                <div class="info-item">💫 Der Rest bleibt eine Überraschung...</div>
-            </div>
+<div class="gate" id="gate" hidden>
+  <div class="door l"><div class="haz"></div><div class="edge"></div><div class="lamp"></div><div class="plate">SEKTOR 10-A</div></div>
+  <div class="door r"><div class="haz"></div><div class="edge"></div><div class="lamp"></div><div class="plate">SEKTOR 10-B</div></div>
+  <div class="lock" aria-hidden="true">
+    <svg viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="96" fill="#0b111d" stroke="#2c3a55" stroke-width="4"/>
+      <g class="lk-ring lk-a"><circle cx="100" cy="100" r="84" fill="none" stroke="#00f0ff" stroke-width="5" stroke-dasharray="40 12"/></g>
+      <g id="bolts">
+        <rect class="bolt" x="94" y="8" width="12" height="30" rx="3" fill="#8aa4bd"/>
+        <rect class="bolt" x="94" y="162" width="12" height="30" rx="3" fill="#8aa4bd"/>
+        <rect class="bolt" x="8" y="94" width="30" height="12" rx="3" fill="#8aa4bd"/>
+        <rect class="bolt" x="162" y="94" width="30" height="12" rx="3" fill="#8aa4bd"/>
+      </g>
+      <g class="lk-ring lk-b"><circle cx="100" cy="100" r="58" fill="#101a2c" stroke="#ffb800" stroke-width="3" stroke-dasharray="6 6"/><path d="M100 50 L108 64 L92 64 Z" fill="#ffb800"/></g>
+      <text x="100" y="114" text-anchor="middle" font-family="Orbitron, sans-serif" font-weight="900" font-size="40" fill="#e3f6ff">10</text>
+    </svg>
+  </div>
+  <div class="gate-msg" id="gateMsg">ENTRIEGELUNG</div>
+  <div class="flash"></div>
+</div>
 
-            <div class="footer-call" id="cardFooter">WIR ZÄHLEN AUF DICH!</div>
-            <br>
-            <button class="btn" id="acceptBtn" onclick="acceptMission()">MISSION AKZEPTIEREN 🚀</button>
-        </div>
+<div class="launchcount" id="launchCount" hidden></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 
-        <!-- ACCEPTED & COUNTDOWN VIEW -->
-        <div id="acceptedView" class="hidden">
-            <div class="header">
-                <span class="title">🔒 MISSION BESTÄTIGT</span>
-                <span class="stamp">AKTIV</span>
-            </div>
+<script>
+(function(){
+'use strict';
 
-            <div class="status-badge">
-                ✅ MISSION AKZEPTIERT VON AGENT <span id="acceptedAgentName"></span>
-            </div>
+var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function $(id){ return document.getElementById(id); }
+function rnd(a, b){ return a + Math.random() * (b - a); }
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
 
-            <div class="text-body" style="text-align: center; font-size: 1rem; color: #00ff9d; line-height: 1.6;">
-                ⚠️ <b>WICHTIGE MITTEILUNG:</b><br>
-                Du hast eine sehr wichtige Verantwortung übernommen. Die Operation ist nun aktiv und dein Platz ist reserviert!
-            </div>
+/* ======================= AGENTS ======================= */
+var AGENTS = {
+  TESTER: { name: 'Tester', isTester: true },
+  AFRA: { name: 'Afra' },
+  WILLIAM: { name: 'William' },
+  WIEHAN: { name: 'Wiehan' },
+  WIDA: { name: 'Wida' },
+  KIAN: { name: 'Kian' },
+  SAHAR: { name: 'Sahar' },
+  SAMA: { name: 'Sama' },
+  MOHAMMAD: { name: 'Mohammad' },
+  HELEN: { name: 'Helen' }
+};
+/* acceptance notice goes to this address via FormSubmit (same service as before) */
+var NOTIFY_EMAIL = 'emran.ali@outlook.de';
+var MISSION = new Date(2026, 9, 4, 14, 0, 0).getTime();
 
-            <br>
-            <div class="countdown-title">⏳ COUNTDOWN BIS ZUR MISSION:</div>
+/* ======================= AUDIO ENGINE ======================= */
+var AC = null, master = null, reverb = null, soundOn = true;
+var bufs = {};
 
-            <div class="timer-grid">
-                <div class="time-box">
-                    <div class="time-num" id="days">00</div>
-                    <div class="time-label">TAGE</div>
-                </div>
-                <div class="time-box">
-                    <div class="time-num" id="hours">00</div>
-                    <div class="time-label">STUNDEN</div>
-                </div>
-                <div class="time-box">
-                    <div class="time-num" id="minutes">00</div>
-                    <div class="time-label">MINUTEN</div>
-                </div>
-                <div class="time-box">
-                    <div class="time-num" id="seconds">00</div>
-                    <div class="time-label">SEKUNDEN</div>
-                </div>
-            </div>
+function audio(){
+  if (!soundOn) return null;
+  try {
+    if (!AC) {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      AC = new C();
+      master = AC.createGain();
+      master.gain.value = 0.85;
+      var comp = AC.createDynamicsCompressor();
+      comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 5;
+      comp.attack.value = 0.004; comp.release.value = 0.25;
+      master.connect(comp); comp.connect(AC.destination);
+      reverb = AC.createConvolver();
+      reverb.buffer = impulse(2.8);
+      var rg = AC.createGain(); rg.gain.value = 0.4;
+      reverb.connect(rg); rg.connect(master);
+    }
+    if (AC.state === 'suspended') AC.resume();
+    return AC;
+  } catch (e) { return null; }
+}
+function impulse(sec){
+  var len = Math.floor(AC.sampleRate * sec), b = AC.createBuffer(2, len, AC.sampleRate);
+  for (var c = 0; c < 2; c++) {
+    var d = b.getChannelData(c);
+    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+  }
+  return b;
+}
+function buf(kind){
+  if (bufs[kind]) return bufs[kind];
+  var sec = kind === 'white' ? 2 : 4;
+  var len = Math.floor(AC.sampleRate * sec), b = AC.createBuffer(1, len, AC.sampleRate), d = b.getChannelData(0), i;
+  if (kind === 'white') {
+    for (i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  } else if (kind === 'brown') {
+    var last = 0;
+    for (i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
+  } else {
+    /* crackle: sparse sharp bursts, like a rocket engine's raw popping */
+    for (i = 0; i < len; i++) d[i] = 0;
+    i = 0;
+    while (i < len) {
+      i += Math.floor(rnd(30, 420));
+      var amp = Math.pow(Math.random(), 1.6), n = Math.floor(rnd(12, 160));
+      for (var j = 0; j < n && i + j < len; j++) d[i + j] += (Math.random() * 2 - 1) * amp * Math.exp(-j / (n * 0.3));
+    }
+  }
+  bufs[kind] = b;
+  return b;
+}
+/* output bus with optional reverb send and stereo pan */
+function bus(wet, pan){
+  var g = AC.createGain();
+  var node = g;
+  if (pan && AC.createStereoPanner) {
+    var p = AC.createStereoPanner(); p.pan.value = pan;
+    g.connect(p); node = p;
+  }
+  node.connect(master);
+  if (wet) { var s = AC.createGain(); s.gain.value = wet; node.connect(s); s.connect(reverb); }
+  return g;
+}
+function env(param, t, a, peak, hold, rel){
+  param.setValueAtTime(0.0001, t);
+  param.exponentialRampToValueAtTime(peak, t + a);
+  param.setValueAtTime(peak, t + a + hold);
+  param.exponentialRampToValueAtTime(0.0001, t + a + hold + rel);
+}
+function noiseSrc(kind, t, dur, loop){
+  var s = AC.createBufferSource();
+  s.buffer = buf(kind);
+  s.loop = !!loop;
+  var off = Math.random() * (s.buffer.duration - 0.1);
+  s.start(t, loop ? off : Math.min(off, Math.max(0, s.buffer.duration - dur - 0.05)));
+  s.stop(t + dur + 0.05);
+  return s;
+}
+function filt(type, f, q){ var b = AC.createBiquadFilter(); b.type = type; b.frequency.value = f; if (q) b.Q.value = q; return b; }
+function osc(type, f, t, dur){ var o = AC.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); o.start(t); o.stop(t + dur + 0.05); return o; }
+function chain(){ for (var i = 0; i < arguments.length - 1; i++) arguments[i].connect(arguments[i + 1]); return arguments[arguments.length - 1]; }
+function gainNode(){ return AC.createGain(); }
 
-            <p style="text-align: center; font-size: 0.85rem; color: #8faec4; margin-top: 15px;">
-                Sei pünktlich am Treffpunkt. Keine Ausreden! 🚀
-            </p>
-        </div>
-    </div>
+/* -- UI sounds -- */
+function sKey(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.005, out = bus(0.08, rnd(-0.2, 0.2));
+  var n = noiseSrc('white', t, 0.04), g = gainNode();
+  env(g.gain, t, 0.001, 0.22, 0, 0.025);
+  chain(n, filt('highpass', 2600), g, out);
+  var f = rnd(1300, 2100), o = osc('sine', f, t, 0.07), g2 = gainNode();
+  o.frequency.exponentialRampToValueAtTime(f * 0.62, t + 0.06);
+  env(g2.gain, t, 0.002, 0.1, 0, 0.06);
+  chain(o, g2, out);
+  var o3 = osc('sine', 170, t, 0.06), g3 = gainNode();
+  env(g3.gain, t, 0.001, 0.12, 0, 0.045);
+  chain(o3, g3, out);
+}
+function sBack(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.005, out = bus(0.1);
+  var o = osc('square', 900, t, 0.08), g = gainNode();
+  o.frequency.exponentialRampToValueAtTime(260, t + 0.07);
+  env(g.gain, t, 0.002, 0.04, 0, 0.07);
+  chain(o, filt('lowpass', 2400), g, out);
+}
+function sScan(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.35);
+  var o = osc('sine', 200, t, 0.75), g = gainNode();
+  o.frequency.exponentialRampToValueAtTime(1900, t + 0.7);
+  var lfo = osc('sine', 22, t, 0.75), lg = gainNode(); lg.gain.value = 0.05;
+  lfo.connect(lg); lg.connect(g.gain);
+  env(g.gain, t, 0.03, 0.08, 0.5, 0.2);
+  chain(o, g, out);
+  for (var i = 0; i < 7; i++) {
+    var tt = t + 0.08 + i * 0.085, b = osc('square', i % 2 ? 2400 : 1800, tt, 0.04), bg = gainNode();
+    env(bg.gain, tt, 0.001, 0.025, 0.015, 0.02);
+    chain(b, filt('lowpass', 5000), bg, out);
+  }
+}
+function sDenied(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.25);
+  for (var i = 0; i < 3; i++) {
+    var tt = t + i * 0.2;
+    var a = osc('sawtooth', 146, tt, 0.16), b = osc('sawtooth', 155, tt, 0.16), g = gainNode();
+    env(g.gain, tt, 0.005, 0.16, 0.11, 0.04);
+    var lp = filt('lowpass', 1100, 3);
+    a.connect(lp); b.connect(lp); chain(lp, g, out);
+  }
+  var n = noiseSrc('white', t, 0.12), ng = gainNode();
+  env(ng.gain, t, 0.002, 0.12, 0.05, 0.05);
+  chain(n, filt('bandpass', 3000, 2), ng, out);
+}
+function sGranted(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.55);
+  var notes = [659.3, 987.8, 1318.5, 1975.5];
+  for (var i = 0; i < notes.length; i++) {
+    var tt = t + i * 0.075, o = osc('triangle', notes[i], tt, 0.5), g = gainNode();
+    env(g.gain, tt, 0.004, 0.09, 0.08, 0.35);
+    chain(o, g, out);
+  }
+}
+function sSlam(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.6);
+  var n = noiseSrc('white', t, 0.9), g = gainNode();
+  env(g.gain, t, 0.002, 0.7, 0, 0.35);
+  chain(n, filt('lowpass', 700), g, out);
+  var o = osc('sine', 62, t, 0.9), og = gainNode();
+  o.frequency.exponentialRampToValueAtTime(32, t + 0.6);
+  env(og.gain, t, 0.003, 0.9, 0.05, 0.6);
+  chain(o, og, out);
+  var m = noiseSrc('white', t, 0.5), mg = gainNode();
+  env(mg.gain, t, 0.001, 0.3, 0, 0.4);
+  chain(m, filt('bandpass', 3300, 18), mg, out);
+  var m2 = noiseSrc('white', t, 0.5), mg2 = gainNode();
+  env(mg2.gain, t, 0.001, 0.25, 0, 0.3);
+  chain(m2, filt('bandpass', 5200, 22), mg2, out);
+}
+function sClunk(i){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.5, (i % 2 ? 0.35 : -0.35));
+  var o = osc('sine', 120, t, 0.5), g = gainNode();
+  o.frequency.exponentialRampToValueAtTime(55, t + 0.18);
+  env(g.gain, t, 0.002, 0.5, 0, 0.2);
+  chain(o, g, out);
+  var n = noiseSrc('white', t, 0.12), ng = gainNode();
+  env(ng.gain, t, 0.001, 0.3, 0, 0.07);
+  chain(n, filt('lowpass', 1200), ng, out);
+  var r = noiseSrc('white', t, 0.4), rg = gainNode();
+  env(rg.gain, t, 0.001, 0.14, 0, 0.3);
+  chain(r, filt('bandpass', 2100 + i * 350, 28), rg, out);
+}
+function sHiss(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.35);
+  var n = noiseSrc('white', t, 1.1), g = gainNode(), f = filt('bandpass', 6000, 0.7);
+  f.frequency.exponentialRampToValueAtTime(2500, t + 1);
+  env(g.gain, t, 0.02, 0.3, 0.2, 0.8);
+  chain(n, filt('highpass', 1800), f, g, out);
+}
+function sDoorOpen(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01;
+  /* hydraulic drive */
+  var out = bus(0.35);
+  var a = osc('sawtooth', 46, t, 1.9), b = osc('sawtooth', 69.5, t, 1.9), lp = filt('lowpass', 150, 4), g = gainNode();
+  lp.frequency.setValueAtTime(150, t);
+  lp.frequency.exponentialRampToValueAtTime(760, t + 0.55);
+  lp.frequency.exponentialRampToValueAtTime(220, t + 1.7);
+  a.frequency.linearRampToValueAtTime(52, t + 1.2);
+  b.frequency.linearRampToValueAtTime(78, t + 1.2);
+  env(g.gain, t, 0.08, 0.32, 0.9, 0.8);
+  a.connect(lp); b.connect(lp); chain(lp, g, out);
+  /* air whoosh sweeping across */
+  var n = noiseSrc('white', t, 1.9), bp = filt('bandpass', 250, 1.1), ng = gainNode(), wo = bus(0.45);
+  bp.frequency.setValueAtTime(250, t);
+  bp.frequency.exponentialRampToValueAtTime(2600, t + 1.1);
+  bp.frequency.exponentialRampToValueAtTime(900, t + 1.8);
+  env(ng.gain, t, 0.25, 0.42, 0.45, 0.8);
+  chain(n, bp, ng, wo);
+  /* power-up sweep */
+  var po = bus(0.7);
+  var s1 = osc('sine', 90, t, 1.9), s2 = osc('sine', 90.9, t, 1.9), sg = gainNode();
+  s1.frequency.exponentialRampToValueAtTime(1250, t + 1.5);
+  s2.frequency.exponentialRampToValueAtTime(1262, t + 1.5);
+  env(sg.gain, t, 0.3, 0.1, 0.9, 0.6);
+  s1.connect(sg); s2.connect(sg); sg.connect(po);
+  /* arrival shimmer */
+  var sh = [1318.5, 1975.5, 2637];
+  for (var i = 0; i < sh.length; i++) {
+    var tt = t + 1.2 + i * 0.06, o = osc('triangle', sh[i], tt, 1.4), og = gainNode();
+    env(og.gain, tt, 0.02, 0.05, 0.1, 1.1);
+    chain(o, og, po);
+  }
+}
+function sBeep(hi){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.4);
+  var o = osc('sine', hi ? 1760 : 880, t, 0.3), g = gainNode();
+  env(g.gain, t, 0.004, 0.16, 0.1, 0.15);
+  chain(o, g, out);
+  var o2 = osc('square', hi ? 1760 : 880, t, 0.3), g2 = gainNode();
+  env(g2.gain, t, 0.004, 0.03, 0.1, 0.1);
+  chain(o2, filt('lowpass', 3000), g2, out);
+}
+function sStamp(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.01, out = bus(0.3);
+  var o = osc('sine', 150, t, 0.25), g = gainNode();
+  o.frequency.exponentialRampToValueAtTime(60, t + 0.12);
+  env(g.gain, t, 0.002, 0.5, 0, 0.16);
+  chain(o, g, out);
+  var n = noiseSrc('white', t, 0.1), ng = gainNode();
+  env(ng.gain, t, 0.001, 0.35, 0, 0.06);
+  chain(n, filt('lowpass', 1800), ng, out);
+}
+function sType(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.005, out = bus(0.05);
+  var o = osc('square', rnd(2600, 3400), t, 0.02), g = gainNode();
+  env(g.gain, t, 0.001, 0.018, 0, 0.015);
+  chain(o, filt('bandpass', 3000, 3), g, out);
+}
+function sTick(){
+  if (!audio()) return;
+  var t = AC.currentTime + 0.005, out = bus(0.2);
+  var o = osc('sine', 2200, t, 0.05), g = gainNode();
+  env(g.gain, t, 0.001, 0.018, 0, 0.04);
+  chain(o, g, out);
+}
+/* -- rocket: ignition boom, sub rumble, roar, raw crackle; filters close as it climbs away -- */
+function sRocket(delay, pan){
+  if (!audio()) return;
+  var t = AC.currentTime + delay, D = 6.4, out = bus(0.3, pan);
+  /* ignition thump */
+  var bo = osc('sine', 70, t, 1.6), bg = gainNode();
+  bo.frequency.exponentialRampToValueAtTime(28, t + 1.2);
+  env(bg.gain, t, 0.01, 0.8, 0.1, 1.2);
+  chain(bo, bg, out);
+  var bn = noiseSrc('brown', t, 1.4), bng = gainNode();
+  env(bng.gain, t, 0.01, 0.9, 0.15, 1.0);
+  chain(bn, filt('lowpass', 500), bng, out);
+  /* rumble */
+  var r = noiseSrc('brown', t, D, true), rl = filt('lowpass', 180, 0.7), rg = gainNode();
+  rl.frequency.setValueAtTime(180, t);
+  rl.frequency.exponentialRampToValueAtTime(520, t + 1.4);
+  rl.frequency.exponentialRampToValueAtTime(140, t + D);
+  rg.gain.setValueAtTime(0.0001, t);
+  rg.gain.exponentialRampToValueAtTime(0.9, t + 0.7);
+  rg.gain.setValueAtTime(0.9, t + 2.2);
+  rg.gain.exponentialRampToValueAtTime(0.0001, t + D);
+  chain(r, rl, rg, out);
+  /* roar */
+  var w = noiseSrc('white', t, D, true), wb = filt('bandpass', 700, 0.55), wg = gainNode();
+  wb.frequency.setValueAtTime(700, t);
+  wb.frequency.exponentialRampToValueAtTime(1500, t + 1.2);
+  wb.frequency.exponentialRampToValueAtTime(380, t + D);
+  wg.gain.setValueAtTime(0.0001, t);
+  wg.gain.exponentialRampToValueAtTime(0.22, t + 0.9);
+  wg.gain.setValueAtTime(0.22, t + 2.0);
+  wg.gain.exponentialRampToValueAtTime(0.0001, t + D - 0.4);
+  chain(w, wb, wg, out);
+  /* crackle */
+  var c = noiseSrc('crackle', t, D, true), ch = filt('highpass', 500), cl = filt('lowpass', 7000), cg = gainNode();
+  cl.frequency.setValueAtTime(7000, t + 1.5);
+  cl.frequency.exponentialRampToValueAtTime(1200, t + D);
+  cg.gain.setValueAtTime(0.0001, t);
+  cg.gain.exponentialRampToValueAtTime(0.75, t + 0.5);
+  cg.gain.setValueAtTime(0.75, t + 2.3);
+  cg.gain.exponentialRampToValueAtTime(0.0001, t + D - 0.3);
+  chain(c, ch, cl, cg, out);
+  /* sub */
+  var s = osc('sine', 36, t, D), sg = gainNode();
+  env(sg.gain, t, 0.5, 0.4, 1.8, 3.2);
+  chain(s, sg, out);
+}
 
-    <script>
-        const MY_EMAIL = "emran.ali@outlook.de"; 
+var soundBtn = $('soundBtn');
+soundBtn.addEventListener('click', function(){
+  soundOn = !soundOn;
+  soundBtn.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  $('soundLabel').textContent = soundOn ? 'TON AN' : 'TON AUS';
+  $('soundWave').style.display = soundOn ? '' : 'none';
+  if (soundOn) { audio(); sBeep(false); }
+  else if (master) { try { master.gain.cancelScheduledValues(0); } catch (e) {} }
+});
+document.addEventListener('pointerdown', function(){ audio(); }, { passive: true });
 
-        localStorage.clear();
+/* ======================= STARFIELD ======================= */
+var sc = $('stars'), sctx = sc.getContext('2d'), stars = [], warp = 0, warpTarget = 0, sdpr = 1;
+var STAR_COLS = ['#ffffff', '#bdf7ff', '#00f0ff', '#ff2d55', '#00ff9d'];
+function sizeStars(){
+  sdpr = Math.min(window.devicePixelRatio || 1, 2);
+  sc.width = Math.round(window.innerWidth * sdpr);
+  sc.height = Math.round(window.innerHeight * sdpr);
+}
+function newStar(s, far){
+  s.x = rnd(-1, 1); s.y = rnd(-1, 1); s.z = far ? 1 : rnd(0.05, 1); s.pz = s.z;
+  s.c = STAR_COLS[Math.random() < 0.8 ? (Math.random() < 0.5 ? 0 : 1) : Math.floor(rnd(2, 5))];
+  return s;
+}
+for (var si = 0; si < 240; si++) stars.push(newStar({}, false));
 
-        const database = {
-            'TESTER': { name: 'Tester (Unrestricted)', isTester: true },
-            'AFRA': { name: 'Afra' },
-            'WILLIAM': { name: 'William' },
-            'WIEHAN': { name: 'Wiehan' },
-            'WIDA': { name: 'Wida' },
-            'KIAN': { name: 'Kian' },
-            'SAHAR': { name: 'Sahar' },
-            'SAMA': { name: 'Sama' },
-            'MOHAMMAD': { name: 'Mohammad' }
-        };
+var lastS = 0;
+function starFrame(now){
+  var dt = Math.min(0.05, (now - (lastS || now)) / 1000); lastS = now;
+  warp += (warpTarget - warp) * (1 - Math.exp(-dt * 4));
+  var w = sc.width, h = sc.height, cx = w / 2, cy = h / 2, R = Math.max(w, h) * 0.55;
+  sctx.clearRect(0, 0, w, h);
+  var speed = REDUCED ? 0 : 0.035 + warp * 1.6;
+  for (var i = 0; i < stars.length; i++) {
+    var s = stars[i];
+    s.pz = s.z;
+    s.z -= speed * dt;
+    if (s.z <= 0.04) { newStar(s, true); continue; }
+    var px = cx + (s.x / s.z) * R * 0.35, py = cy + (s.y / s.z) * R * 0.35;
+    if (px < -10 || px > w + 10 || py < -10 || py > h + 10) { newStar(s, true); continue; }
+    var size = (1 - s.z) * 2.4 * sdpr + 0.4;
+    var a = clamp((1 - s.z) * 1.4, 0.1, 1);
+    sctx.globalAlpha = a;
+    if (warp > 0.08) {
+      var qx = cx + (s.x / s.pz) * R * 0.35, qy = cy + (s.y / s.pz) * R * 0.35;
+      var ex = px + (px - qx) * 3, ey = py + (py - qy) * 3;
+      sctx.strokeStyle = s.c; sctx.lineWidth = size;
+      sctx.beginPath(); sctx.moveTo(qx, qy); sctx.lineTo(ex, ey); sctx.stroke();
+    } else {
+      sctx.fillStyle = s.c;
+      sctx.fillRect(px, py, size, size);
+    }
+  }
+  sctx.globalAlpha = 1;
+  requestAnimationFrame(starFrame);
+}
+sizeStars();
+window.addEventListener('resize', function(){ sizeStars(); sizeFx(); });
+requestAnimationFrame(starFrame);
 
-        let currentAgent = null;
-        let audioCtx = null;
+/* ======================= VIEWS ======================= */
+var codeInput = $('agentCode'), codeField = $('codeField'), loginMsg = $('loginMsg'), loginBtn = $('loginBtn');
+var currentCode = '', currentAgent = null, busy = false, lastLen = 0;
 
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
+function show(id){
+  ['loginView', 'fileView', 'doneView'].forEach(function(v){ $(v).hidden = (v !== id); });
+}
+function accepted(code){ try { return localStorage.getItem('mission_accepted_' + code) === '1'; } catch (e) { return false; } }
+function setAccepted(code){ try { localStorage.setItem('mission_accepted_' + code, '1'); } catch (e) {} }
+function setMsg(t, k){ loginMsg.textContent = t; loginMsg.className = 'msg' + (k ? ' ' + k : ''); }
 
-        function playTypingSound() {
-            initAudio();
-            if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.04);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.04);
-        }
+codeInput.addEventListener('input', function(){
+  var v = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (v !== codeInput.value) codeInput.value = v;
+  if (v.length > lastLen) sKey(); else if (v.length < lastLen) sBack();
+  lastLen = v.length;
+  codeField.classList.remove('bad');
+  if (loginMsg.className.indexOf('bad') >= 0) setMsg('', '');
+});
 
-        function playGateOpenSound() {
-            initAudio();
-            if(!audioCtx) return;
+function restart(el, cls){ el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
 
-            const bufferSize = audioCtx.sampleRate * 1.5;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
+$('loginForm').addEventListener('submit', function(ev){
+  ev.preventDefault();
+  if (busy) return;
+  audio();
+  var code = codeInput.value.trim().toUpperCase();
+  if (!code) { setMsg('BITTE ZUERST DEINEN CODE EINGEBEN', 'bad'); restart(codeField, 'shake'); sDenied(); return; }
+  busy = true; loginBtn.disabled = true;
+  setMsg('CODE WIRD GEPR\u00dcFT ...', 'info');
+  sScan();
+  setTimeout(function(){
+    var agent = AGENTS[code];
+    if (!agent) {
+      busy = false; loginBtn.disabled = false;
+      setMsg('ZUGRIFF VERWEIGERT \u00b7 UNG\u00dcLTIGER CODE', 'bad');
+      codeField.classList.add('bad');
+      restart(codeField, 'shake');
+      restart($('card'), 'glitch');
+      sDenied();
+      return;
+    }
+    currentCode = code; currentAgent = agent;
+    setMsg('ZUGRIFF GEW\u00c4HRT', 'ok');
+    sGranted();
+    setTimeout(function(){
+      openGate(function(){
+        if (!agent.isTester && accepted(code)) showDone();
+        else showFile();
+      });
+    }, 350);
+  }, 780);
+});
 
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
-            filter.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 1.2);
+/* ---- blast door sequence ---- */
+var gate = $('gate'), gateMsg = $('gateMsg');
+function openGate(swapView){
+  var T = REDUCED ? 0.4 : 1;
+  gate.hidden = false;
+  gate.className = 'gate';
+  gateMsg.textContent = 'ENTRIEGELUNG';
+  var bolts = document.querySelectorAll('#bolts .bolt');
+  var boltMoves = ['translate(0,-24px)', 'translate(0,24px)', 'translate(-24px,0)', 'translate(24px,0)'];
+  for (var i = 0; i < bolts.length; i++) bolts[i].style.transform = '';
+  void gate.offsetWidth;
+  gate.classList.add('closed');
+  setTimeout(function(){ sSlam(); shakeScreen(9, 0.35); }, 330 * T);
+  setTimeout(function(){ gate.classList.add('locked'); sScan(); }, 480 * T);
+  setTimeout(function(){ gate.classList.add('unlock'); }, 820 * T);
+  [0, 1, 2, 3].forEach(function(n){
+    setTimeout(function(){ bolts[n].style.transform = boltMoves[n]; sClunk(n); }, (900 + n * 130) * T);
+  });
+  setTimeout(function(){
+    gate.classList.add('lit');
+    gateMsg.textContent = 'ZUGANG FREI';
+    sHiss();
+  }, 1480 * T);
+  setTimeout(function(){
+    gate.classList.add('release');
+    swapView();
+    gate.classList.add('open');
+    gate.classList.remove('closed');
+    gate.classList.add('flashing');
+    setTimeout(function(){ gate.classList.remove('flashing'); }, 90);
+    sDoorOpen();
+    if (!REDUCED) { warpTarget = 1; setTimeout(function(){ warpTarget = 0; }, 1100); }
+  }, 1800 * T);
+  setTimeout(function(){
+    gate.hidden = true;
+    gate.className = 'gate';
+    busy = false; loginBtn.disabled = false;
+  }, 3200 * T);
+}
 
-            const noiseGain = audioCtx.createGain();
-            noiseGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+/* ---- file view with typed intro ---- */
+var typeTimer = 0;
+function showFile(){
+  var a = currentAgent;
+  show('fileView');
+  $('cardRecipient').textContent = 'F\u00fcr Agent ' + a.name;
+  $('cardFooter').textContent = 'Wir z\u00e4hlen auf dich, Agent ' + a.name + '!';
+  $('acceptBtn').disabled = false;
+  restart($('fileStamp'), 'slam');
+  setTimeout(sStamp, 1900);
+  restart($('intel'), 'reveal');
+  typeText($('cardIntro'), 'Hallo ' + a.name + ', du wurdest ausgew\u00e4hlt, an einer besonderen und geheimen Mission teilzunehmen.');
+}
+function typeText(el, text){
+  clearTimeout(typeTimer);
+  var i = 0;
+  el.textContent = '';
+  var span = document.createElement('span'), caret = document.createElement('span');
+  caret.className = 'caret';
+  el.appendChild(span); el.appendChild(caret);
+  if (REDUCED) { span.textContent = text; return; }
+  (function next(){
+    if (i > text.length) { setTimeout(function(){ caret.remove(); }, 1600); return; }
+    span.textContent = text.slice(0, i);
+    if (i % 2 === 0 && text.charAt(i) !== ' ') sType();
+    i++;
+    typeTimer = setTimeout(next, 26 + Math.random() * 30);
+  })();
+}
 
-            noise.connect(filter);
-            filter.connect(noiseGain);
-            noiseGain.connect(audioCtx.destination);
-            noise.start();
+$('acceptBtn').addEventListener('click', function(){
+  if (busy) return;
+  busy = true;
+  this.disabled = true;
+  audio();
+  if (!currentAgent.isTester) setAccepted(currentCode);
+  notifyHQ(currentAgent, currentCode);
+  launchSequence(function(){ busy = false; showDone(); });
+});
 
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.0);
-            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.0);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 1.0);
-        }
+/* ---- notify the organisers: POST to FormSubmit, which forwards it as an e-mail ---- */
+var sendResult = 'none';
+function renderSend(){
+  var el = $('sendState'), tx = $('sendText');
+  if (!el) return;
+  el.hidden = sendResult === 'none';
+  if (sendResult === 'pending') { el.className = 'sendstate'; tx.textContent = 'MELDUNG AN DIE ZENTRALE WIRD GESENDET ...'; }
+  else if (sendResult === 'ok') { el.className = 'sendstate ok'; tx.textContent = 'DIE ZENTRALE WURDE BENACHRICHTIGT'; }
+  else if (sendResult === 'fail') { el.className = 'sendstate bad'; tx.textContent = 'MELDUNG NICHT ANGEKOMMEN - BITTE PER WHATSAPP BEST\u00c4TIGEN'; }
+}
+function notifyHQ(agent, code){
+  sendResult = 'pending';
+  renderSend();
+  var when = new Date().toLocaleString('de-DE');
+  var payload = {
+    _subject: (agent.isTester ? '[TEST] ' : '') + 'BEST\u00c4TIGUNG: Agent ' + agent.name + ' hat die Einladung akzeptiert!',
+    _template: 'table',
+    Agent: agent.name,
+    Code: code,
+    Status: 'Einladung akzeptiert',
+    Zeitpunkt: when
+  };
+  var done = false;
+  var timer = setTimeout(function(){ if (!done) { done = true; sendResult = 'fail'; renderSend(); } }, 12000);
+  try {
+    fetch('https://formsubmit.co/ajax/' + NOTIFY_EMAIL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(j){
+        if (done) return;
+        done = true; clearTimeout(timer);
+        var ok = res.ok && !(j && (j.success === false || j.success === 'false'));
+        sendResult = ok ? 'ok' : 'fail';
+        renderSend();
+      });
+    }).catch(function(){
+      if (done) return;
+      done = true; clearTimeout(timer);
+      sendResult = 'fail';
+      renderSend();
+    });
+  } catch (e) {
+    done = true; clearTimeout(timer);
+    sendResult = 'fail';
+    renderSend();
+  }
+}
 
-        function playRocketSound() {
-            initAudio();
-            if(!audioCtx) return;
+/* ---- done view ---- */
+var cdTimer = 0;
+function pad(n){ return (n < 10 ? '0' : '') + n; }
+function showDone(){
+  var a = currentAgent;
+  show('doneView');
+  $('acceptedName').textContent = a.name.toUpperCase();
+  renderSend();
+  var msg = 'Agent ' + a.name + ' meldet: Mission akzeptiert! Ich bin am Sonntag, 4. Oktober 2026 um 14:00 Uhr in der Krefelder Str. 81, Dormagen dabei.';
+  $('waLink').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  clearInterval(cdTimer);
+  tickCd(false);
+  cdTimer = setInterval(function(){ tickCd(true); }, 1000);
+}
+function tickCd(sound){
+  var now = Date.now(), d = Math.max(0, MISSION - now);
+  $('tD').textContent = pad(Math.floor(d / 86400000));
+  $('tH').textContent = pad(Math.floor((d % 86400000) / 3600000));
+  $('tM').textContent = pad(Math.floor((d % 3600000) / 60000));
+  $('tS').textContent = pad(Math.floor((d % 60000) / 1000));
+  if (d === 0) $('doneNote').textContent = 'Die Mission l\u00e4uft! Viel Spa\u00df, Agent.';
+  if (sound && d > 0 && !$('doneView').hidden) sTick();
+}
+$('switchBtn').addEventListener('click', function(){
+  clearInterval(cdTimer);
+  sendResult = 'none';
+  codeInput.value = ''; lastLen = 0;
+  setMsg('', '');
+  show('loginView');
+  codeInput.focus();
+});
 
-            const bufferSize = audioCtx.sampleRate * 2.8;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
+/* ======================= SCREEN SHAKE ======================= */
+var shell = $('shell'), shakeAmp = 0, shakeUntil = 0;
+function shakeScreen(amp, sec){
+  if (REDUCED) return;
+  shakeAmp = Math.max(shakeAmp, amp);
+  shakeUntil = Math.max(shakeUntil, performance.now() + sec * 1000);
+  if (!shakeRun) { shakeRun = true; requestAnimationFrame(shakeFrame); }
+}
+var shakeRun = false;
+function shakeFrame(now){
+  var left = shakeUntil - now;
+  var extra = rocketShake();
+  if (left <= 0 && extra <= 0.2) {
+    shell.style.transform = '';
+    gate.style.transform = '';
+    shakeAmp = 0; shakeRun = false;
+    return;
+  }
+  var a = Math.max(left > 0 ? shakeAmp * clamp(left / 300, 0, 1) : 0, extra);
+  var tr = 'translate(' + rnd(-a, a).toFixed(1) + 'px,' + rnd(-a, a).toFixed(1) + 'px)';
+  shell.style.transform = tr;
+  gate.style.transform = tr;
+  requestAnimationFrame(shakeFrame);
+}
 
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
+/* ======================= ROCKETS ======================= */
+var fx = $('fx'), fctx = fx.getContext('2d'), fdpr = 1, VW = 0, VH = 0;
+var rockets = [], smoke = [], sparks = [], fxRun = false;
+function sizeFx(){
+  fdpr = Math.min(window.devicePixelRatio || 1, 2);
+  VW = window.innerWidth; VH = window.innerHeight;
+  fx.width = Math.round(VW * fdpr); fx.height = Math.round(VH * fdpr);
+}
+sizeFx();
 
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(120, audioCtx.currentTime);
-            filter.frequency.linearRampToValueAtTime(900, audioCtx.currentTime + 0.8);
-            filter.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 2.8);
+function sprite(inner, outer){
+  var c = document.createElement('canvas'); c.width = c.height = 64;
+  var g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, inner); gr.addColorStop(0.55, outer); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  return c;
+}
+var SMOKE = sprite('rgba(214,220,230,0.9)', 'rgba(170,178,192,0.35)');
+var SMOKE_HOT = sprite('rgba(255,190,120,0.95)', 'rgba(255,120,40,0.35)');
+var GLOW = sprite('rgba(255,210,140,1)', 'rgba(255,110,20,0.35)');
 
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.8);
+var STYLES = [
+  { body: ['#7d8593', '#e9edf3', '#ffffff', '#b8bfca', '#6e7682'], band: '#11151d', accent: '#00f0ff', steel: false },
+  { body: ['#5b6470', '#c9d0d8', '#f4f6f9', '#8f98a4', '#4f5864'], band: '#1d232c', accent: '#ff2d55', steel: true }
+];
 
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            noise.start();
-        }
+function launchSequence(done){
+  var lc = $('launchCount');
+  var steps = ['3', '2', '1', 'Z\u00dcNDUNG'];
+  var i = 0;
+  lc.hidden = false;
+  (function next(){
+    if (i >= steps.length) {
+      lc.hidden = true;
+      ignite();
+      setTimeout(done, 3600);
+      return;
+    }
+    lc.innerHTML = '';
+    var sp = document.createElement('span');
+    sp.textContent = steps[i];
+    if (i === 3) sp.style.fontSize = 'clamp(2.2rem,11vw,5rem)';
+    lc.appendChild(sp);
+    sBeep(i === 3);
+    i++;
+    setTimeout(next, i === 4 ? 420 : 650);
+  })();
+}
 
-        function playTickSound() {
-            initAudio();
-            if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.03);
-        }
+function ignite(){
+  sizeFx();
+  var pos = [0.14, 0.38, 0.62, 0.86];
+  var s = clamp(VH / 820, 0.6, 1.05) * clamp(VW / 420, 0.75, 1.1);
+  for (var i = 0; i < pos.length; i++) {
+    var delay = i * 0.32 + rnd(0, 0.08);
+    rockets.push({
+      x: pos[i] * VW, y: VH + 6 * s, s: s, t: -delay, v: 0, st: STYLES[i % 2],
+      wob: rnd(0, 6), ph: rnd(0, 6), dead: false, len: 150 * s, w: 19 * s
+    });
+    sRocket(delay, (pos[i] - 0.5) * 1.4);
+  }
+  if (!fxRun) { fxRun = true; lastF = 0; requestAnimationFrame(fxFrame); }
+  shakeScreen(0, 0.1);
+}
 
-        function login() {
-            initAudio();
-            const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
-            
-            if (database[codeInput]) {
-                playGateOpenSound();
-                currentAgent = database[codeInput];
+function rocketShake(){
+  var a = 0;
+  for (var i = 0; i < rockets.length; i++) {
+    var r = rockets[i];
+    if (r.t < 0) continue;
+    var near = clamp(1 - (VH - r.y) / (VH * 0.7), 0, 1);
+    a += (r.t < 0.8 ? r.t / 0.8 : 1) * near * 3.2;
+  }
+  return Math.min(a, 8);
+}
 
-                if (!currentAgent.isTester && localStorage.getItem('mission_accepted_' + codeInput)) {
-                    showCountdownView(currentAgent.name);
-                } else {
-                    document.getElementById('cardRecipient').innerText = `Für Agent ${currentAgent.name}`;
-                    document.getElementById('cardIntro').innerHTML = `Liebe/r ${currentAgent.name},<br>du wurdest ausgewählt, an einer besonderen und geheimen Mission teilzunehmen.`;
-                    document.getElementById('cardFooter').innerText = `Wir zählen auf dich, Agent ${currentAgent.name}!`;
+var lastF = 0;
+function fxFrame(now){
+  var dt = Math.min(0.033, (now - (lastF || now)) / 1000); lastF = now;
+  var i, r;
+  for (i = 0; i < rockets.length; i++) {
+    r = rockets[i];
+    r.t += dt;
+    if (r.t < 0) continue;
+    var hold = 0.75;
+    if (r.t > hold) {
+      var a = (90 + 520 * (r.t - hold)) * r.s;
+      r.v += a * dt;
+      r.y -= r.v * dt;
+      r.x += Math.sin(r.t * 1.7 + r.ph) * 6 * r.s * dt;
+    }
+    var thrust = clamp(r.t / hold, 0, 1);
+    var nx = r.x, ny = r.y;
+    var nearGround = VH - ny < 90 * r.s;
+    var rate = nearGround ? 70 : clamp(46 - r.v / 40, 12, 46);
+    var n = Math.floor(rate * dt * thrust * (REDUCED ? 0.4 : 1) + Math.random());
+    for (var k = 0; k < n; k++) {
+      if (nearGround && Math.random() < 0.8) {
+        var dir = Math.random() < 0.5 ? -1 : 1;
+        smoke.push({ x: nx + rnd(-6, 6) * r.s, y: VH - rnd(0, 10), vx: dir * rnd(90, 320) * r.s, vy: rnd(-45, -10) * r.s,
+          r: rnd(10, 18) * r.s, g: rnd(22, 40) * r.s, life: rnd(2.2, 3.6), age: 0 });
+      } else {
+        smoke.push({ x: nx + rnd(-4, 4) * r.s, y: ny + rnd(10, 30) * r.s, vx: rnd(-18, 18) * r.s, vy: rnd(20, 60) * r.s,
+          r: rnd(6, 10) * r.s, g: rnd(16, 28) * r.s, life: rnd(1.6, 2.6), age: 0 });
+      }
+    }
+    if (Math.random() < thrust * 0.9) {
+      sparks.push({ x: nx + rnd(-4, 4) * r.s, y: ny + rnd(4, 20) * r.s, vx: rnd(-110, 110) * r.s, vy: rnd(40, 260) * r.s, life: rnd(0.3, 0.8) });
+    }
+    if (r.y + r.len < -300) r.dead = true;
+  }
+  rockets = rockets.filter(function(q){ return !q.dead; });
+  for (i = smoke.length - 1; i >= 0; i--) {
+    var p = smoke[i];
+    p.age += dt;
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= Math.exp(-dt * 1.3); p.vy = p.vy * Math.exp(-dt * 1.1) - 10 * dt;
+    p.r += p.g * dt;
+    if (p.age >= p.life) smoke.splice(i, 1);
+  }
+  for (i = sparks.length - 1; i >= 0; i--) {
+    var sp = sparks[i];
+    sp.life -= dt; sp.vy += 500 * dt; sp.x += sp.vx * dt; sp.y += sp.vy * dt;
+    if (sp.life <= 0) sparks.splice(i, 1);
+  }
+  if (smoke.length > 900) smoke.splice(0, smoke.length - 900);
 
-                    document.getElementById('loginView').classList.add('hidden');
-                    document.getElementById('cardView').classList.remove('hidden');
-                }
-            } else {
-                alert('🔴 UNGÜLTIGER CODE! Bitte versuchen Sie es erneut.');
-            }
-        }
+  drawFx();
 
-        function acceptMission() {
-            playRocketSound();
+  if (rockets.length || smoke.length || sparks.length) requestAnimationFrame(fxFrame);
+  else { fxRun = false; fctx.setTransform(1, 0, 0, 1, 0, 0); fctx.clearRect(0, 0, fx.width, fx.height); }
+}
 
-            const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
-            
-            if (!currentAgent.isTester) {
-                localStorage.setItem('mission_accepted_' + codeInput, 'true');
-            }
+function drawFx(){
+  var c = fctx;
+  c.setTransform(fdpr, 0, 0, fdpr, 0, 0);
+  c.clearRect(0, 0, VW, VH);
+  var i, r;
+  /* ground glow */
+  c.globalCompositeOperation = 'lighter';
+  for (i = 0; i < rockets.length; i++) {
+    r = rockets[i];
+    if (r.t < 0) continue;
+    var near = clamp(1 - (VH - r.y) / 260, 0, 1) * clamp(r.t / 0.4, 0, 1);
+    if (near > 0) {
+      c.globalAlpha = near * 0.8;
+      c.drawImage(GLOW, r.x - 160 * r.s, VH - 90 * r.s, 320 * r.s, 180 * r.s);
+    }
+  }
+  /* smoke */
+  c.globalCompositeOperation = 'source-over';
+  for (i = 0; i < smoke.length; i++) {
+    var p = smoke[i], k = p.age / p.life;
+    c.globalAlpha = (k < 0.1 ? k / 0.1 : 1 - k) * 0.5;
+    c.drawImage(p.age < 0.25 ? SMOKE_HOT : SMOKE, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+  }
+  c.globalAlpha = 1;
+  /* flames (additive) then bodies */
+  for (i = 0; i < rockets.length; i++) { r = rockets[i]; if (r.t >= 0) drawFlame(c, r); }
+  c.globalCompositeOperation = 'lighter';
+  for (i = 0; i < sparks.length; i++) {
+    var sp = sparks[i];
+    c.globalAlpha = clamp(sp.life * 2, 0, 1);
+    c.fillStyle = '#ffd27a';
+    c.fillRect(sp.x, sp.y, 2, 2 + sp.vy * 0.01);
+  }
+  c.globalAlpha = 1;
+  c.globalCompositeOperation = 'source-over';
+  for (i = 0; i < rockets.length; i++) drawRocket(c, rockets[i]);
+}
 
-            fetch(`https://formsubmit.co/ajax/${MY_EMAIL}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    Subject: `🚀 BESTÄTIGUNG: Agent ${currentAgent.name} hat akzeptiert!`,
-                    Agent: currentAgent.name,
-                    Status: "Einladung Akzeptiert"
-                })
-            }).catch(e => console.log('Send error:', e));
+function drawFlame(c, r){
+  var s = r.s, x = r.x, y = r.y;
+  var thrust = clamp(r.t / 0.75, 0, 1);
+  var len = (26 + thrust * 40 + Math.min(r.v, 1400) * 0.07) * s * rnd(0.88, 1.12) * thrust;
+  var wid = r.w * 0.42 * rnd(0.9, 1.1);
+  c.save();
+  c.globalCompositeOperation = 'lighter';
+  c.globalAlpha = 0.9 * thrust;
+  c.drawImage(GLOW, x - 70 * s, y - 40 * s, 140 * s, 140 * s);
+  /* outer plume */
+  var g = c.createLinearGradient(0, y, 0, y + len);
+  g.addColorStop(0, 'rgba(255,170,60,0.95)');
+  g.addColorStop(0.35, 'rgba(255,90,20,0.7)');
+  g.addColorStop(1, 'rgba(255,40,0,0)');
+  c.fillStyle = g;
+  c.beginPath();
+  c.moveTo(x - wid, y);
+  c.quadraticCurveTo(x - wid * 1.7, y + len * 0.35, x, y + len);
+  c.quadraticCurveTo(x + wid * 1.7, y + len * 0.35, x + wid, y);
+  c.closePath(); c.fill();
+  /* core */
+  var g2 = c.createLinearGradient(0, y, 0, y + len * 0.55);
+  g2.addColorStop(0, 'rgba(255,255,255,1)');
+  g2.addColorStop(0.4, 'rgba(255,240,190,0.9)');
+  g2.addColorStop(1, 'rgba(255,200,100,0)');
+  c.fillStyle = g2;
+  c.beginPath();
+  c.moveTo(x - wid * 0.6, y);
+  c.quadraticCurveTo(x - wid * 0.8, y + len * 0.25, x, y + len * 0.55);
+  c.quadraticCurveTo(x + wid * 0.8, y + len * 0.25, x + wid * 0.6, y);
+  c.closePath(); c.fill();
+  /* shock diamonds */
+  if (r.v > 150) {
+    var dA = clamp((r.v - 150) / 500, 0, 0.7);
+    for (var d = 1; d <= 3; d++) {
+      var dy = y + len * (0.14 + d * 0.13);
+      c.globalAlpha = dA * (1 - d * 0.22);
+      c.fillStyle = 'rgba(190,220,255,0.9)';
+      c.beginPath();
+      c.ellipse(x, dy, wid * 0.32, len * 0.035, 0, 0, Math.PI * 2);
+      c.fill();
+    }
+  }
+  c.restore();
+}
 
-            const positions = [15, 38, 62, 85];
-            positions.forEach((pos, index) => {
-                setTimeout(() => {
-                    const rocketWrap = document.createElement('div');
-                    rocketWrap.className = 'rocket-launch-wrapper';
-                    rocketWrap.style.left = pos + '%';
-                    rocketWrap.innerHTML = `
-                        <div class="cyber-rocket"></div>
-                        <div class="fire-thruster"></div>
-                    `;
-                    document.body.appendChild(rocketWrap);
-                }, index * 350);
-            });
+function drawRocket(c, r){
+  var s = r.s, x = r.x, y = r.y, w = r.w, L = r.len, st = r.st;
+  var tilt = Math.sin(r.t * 1.7 + r.ph) * 0.012;
+  c.save();
+  c.translate(x, y);
+  c.rotate(tilt);
+  var hw = w / 2;
+  var bellH = 9 * s, noseH = 30 * s, bodyTop = -L + noseH;
+  /* engine bell */
+  var bg = c.createLinearGradient(-hw, 0, hw, 0);
+  bg.addColorStop(0, '#2a2f38'); bg.addColorStop(0.5, '#6b7280'); bg.addColorStop(1, '#1d2129');
+  c.fillStyle = bg;
+  c.beginPath();
+  c.moveTo(-hw * 0.72, 0); c.lineTo(hw * 0.72, 0); c.lineTo(hw * 0.42, -bellH); c.lineTo(-hw * 0.42, -bellH);
+  c.closePath(); c.fill();
+  /* body */
+  var g = c.createLinearGradient(-hw, 0, hw, 0);
+  g.addColorStop(0, st.body[0]); g.addColorStop(0.3, st.body[1]); g.addColorStop(0.45, st.body[2]);
+  g.addColorStop(0.78, st.body[3]); g.addColorStop(1, st.body[4]);
+  c.fillStyle = g;
+  c.fillRect(-hw, bodyTop, w, -bellH - bodyTop);
+  /* nose (ogive) */
+  c.beginPath();
+  c.moveTo(-hw, bodyTop);
+  c.bezierCurveTo(-hw, bodyTop - noseH * 0.55, -hw * 0.35, -L + 2 * s, 0, -L);
+  c.bezierCurveTo(hw * 0.35, -L + 2 * s, hw, bodyTop - noseH * 0.55, hw, bodyTop);
+  c.closePath();
+  c.fill();
+  if (st.steel) {
+    /* stainless: dark heat shield strip + panel lines */
+    c.fillStyle = 'rgba(15,18,24,.85)';
+    c.fillRect(-hw, bodyTop, w * 0.22, -bellH - bodyTop);
+    c.strokeStyle = 'rgba(0,0,0,.18)'; c.lineWidth = 1;
+    for (var yy = -bellH - 12 * s; yy > bodyTop; yy -= 12 * s) { c.beginPath(); c.moveTo(-hw, yy); c.lineTo(hw, yy); c.stroke(); }
+    /* forward and aft flaps */
+    c.fillStyle = '#2b313b';
+    c.beginPath(); c.moveTo(-hw, bodyTop + 4 * s); c.lineTo(-hw - 7 * s, bodyTop + 14 * s); c.lineTo(-hw, bodyTop + 20 * s); c.fill();
+    c.beginPath(); c.moveTo(hw, bodyTop + 4 * s); c.lineTo(hw + 7 * s, bodyTop + 14 * s); c.lineTo(hw, bodyTop + 20 * s); c.fill();
+    c.beginPath(); c.moveTo(-hw, -bellH - 34 * s); c.lineTo(-hw - 10 * s, -bellH - 8 * s); c.lineTo(-hw, -bellH - 2 * s); c.fill();
+    c.beginPath(); c.moveTo(hw, -bellH - 34 * s); c.lineTo(hw + 10 * s, -bellH - 8 * s); c.lineTo(hw, -bellH - 2 * s); c.fill();
+  } else {
+    /* interstage band, grid fins, folded legs */
+    var bandY = -L * 0.66;
+    c.fillStyle = st.band;
+    c.fillRect(-hw, bandY, w, 12 * s);
+    c.fillStyle = '#3a414d';
+    c.fillRect(-hw - 5 * s, bandY + 14 * s, 5 * s, 6 * s);
+    c.fillRect(hw, bandY + 14 * s, 5 * s, 6 * s);
+    c.strokeStyle = '#1a1e25'; c.lineWidth = 1.6 * s;
+    c.beginPath(); c.moveTo(-hw + 1, -bellH - 2 * s); c.lineTo(-hw + 1, -bellH - 30 * s); c.stroke();
+    c.beginPath(); c.moveTo(hw - 1, -bellH - 2 * s); c.lineTo(hw - 1, -bellH - 30 * s); c.stroke();
+    c.fillStyle = '#1a1e25';
+    c.beginPath(); c.moveTo(-hw, -bellH); c.lineTo(-hw - 5 * s, -bellH + 2 * s); c.lineTo(-hw, -bellH - 16 * s); c.fill();
+    c.beginPath(); c.moveTo(hw, -bellH); c.lineTo(hw + 5 * s, -bellH + 2 * s); c.lineTo(hw, -bellH - 16 * s); c.fill();
+  }
+  /* accent stripe + mission number */
+  c.fillStyle = st.accent;
+  c.fillRect(-hw, -L * 0.42, w, 3 * s);
+  c.save();
+  c.translate(0, -L * 0.3);
+  c.rotate(-Math.PI / 2);
+  c.font = '900 ' + Math.round(10 * s) + 'px Orbitron, sans-serif';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillStyle = st.steel ? '#1b2029' : st.accent;
+  c.fillText('10', 0, 0);
+  c.restore();
+  /* rim light from the flame */
+  var thrust = clamp(r.t / 0.75, 0, 1);
+  var rl = c.createLinearGradient(0, 0, 0, -L * 0.45);
+  rl.addColorStop(0, 'rgba(255,150,60,' + (0.45 * thrust) + ')');
+  rl.addColorStop(1, 'rgba(255,150,60,0)');
+  c.fillStyle = rl;
+  c.fillRect(-hw, -L * 0.45, w, L * 0.45 - bellH);
+  c.restore();
+}
 
-            setTimeout(() => {
-                showCountdownView(currentAgent.name);
-            }, 3000);
-        }
-
-        function showCountdownView(agentName) {
-            document.getElementById('loginView').classList.add('hidden');
-            document.getElementById('cardView').classList.add('hidden');
-            document.getElementById('acceptedView').classList.remove('hidden');
-            document.getElementById('acceptedAgentName').innerText = agentName.toUpperCase();
-            startCountdown();
-        }
-
-        function startCountdown() {
-            const targetDate = new Date('October 4, 2026 14:00:00').getTime();
-
-            setInterval(() => {
-                const now = new Date().getTime();
-                const difference = targetDate - now;
-
-                if (difference > 0) {
-                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-                    document.getElementById('days').innerText = days < 10 ? '0' + days : days;
-                    document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
-                    document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
-                    document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
-
-                    playTickSound();
-                }
-            }, 1000);
-        }
-    </script>
+/* ======================= INIT ======================= */
+show('loginView');
+})();
+</script>
 </body>
 </html>
