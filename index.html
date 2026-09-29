@@ -234,17 +234,6 @@
             margin-bottom: 15px;
         }
 
-        .reset-btn {
-            background: transparent;
-            border: none;
-            color: #555;
-            font-size: 0.7rem;
-            margin-top: 15px;
-            cursor: pointer;
-            width: 100%;
-            text-align: center;
-        }
-
         .hidden { display: none !important; }
 
         /* ROCKET ANIMATION */
@@ -328,7 +317,6 @@
                 <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;" oninput="playTypingSound()">
             </div>
             <button class="btn" onclick="login()">AKTE ÖFFNEN 🔓</button>
-            <button class="reset-btn" onclick="resetTestData()">[ RESET TEST DATA / CLEAR LOCKS ]</button>
         </div>
 
         <!-- INVITATION CARD VIEW -->
@@ -398,8 +386,17 @@
         </div>
     </div>
 
+    <!-- HIGH QUALITY AUDIO SOURCES -->
+    <!-- صدای سینمایی بلند ۴ ثانیه‌ای باز شدن دروازه فوق‌پنوئماتیک تکنولوژیک -->
+    <audio id="vaultGateSfx" src="https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3" preload="auto"></audio>
+    <!-- صدای واقعی غرش موتور راکت و فوران آتش -->
+    <audio id="rocketThrustSfx" src="https://assets.mixkit.co/active_storage/sfx/1712/1712-preview.mp3" preload="auto"></audio>
+
     <script>
-        const MY_EMAIL = "emran.ali@outlook.de"; // ایمیل خودتان را اینجا بنویسید
+        const MY_EMAIL = "emran.ali@outlook.de"; // ایمیل خودت را بنویس
+
+        // پاکسازی اتوماتیک حافظه هنگام بارگذاری مجدد کدها تا افرا قفل نباشد
+        localStorage.clear();
 
         const database = {
             'TESTER': { name: 'Tester (Unrestricted)', isTester: true },
@@ -416,7 +413,6 @@
         let currentAgent = null;
         let audioCtx = null;
 
-        // سیستم صوتی دیجیتال مستقیم مرورگر (بدون احتمال قطع شدن صدا)
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -432,30 +428,26 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.04);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.05);
+            osc.stop(audioCtx.currentTime + 0.04);
         }
 
         function playGateOpenSound() {
-            initAudio();
-            if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(440, audioCtx.currentTime + 0.4);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
+            const sfx = document.getElementById('vaultGateSfx');
+            sfx.currentTime = 0;
+            sfx.play().catch(()=>{});
+        }
+
+        function playRocketSound() {
+            const sfx = document.getElementById('rocketThrustSfx');
+            sfx.currentTime = 0;
+            sfx.play().catch(()=>{});
         }
 
         function playTickSound() {
@@ -464,35 +456,13 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.03);
-        }
-
-        function playRocketSound() {
-            initAudio();
-            if(!audioCtx) return;
-            // صدای فرکانس بم موتور موشک
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(250, audioCtx.currentTime + 2.5);
-            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.5);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 2.5);
-        }
-
-        function resetTestData() {
-            localStorage.clear();
-            alert('✅ تمام قفل‌ها و داده‌های تست پاکسازی شدند! اکنون می‌توانید دوباره با افرا یا کد تستر وارد شوید.');
         }
 
         function login() {
@@ -503,7 +473,6 @@
                 playGateOpenSound();
                 currentAgent = database[codeInput];
 
-                // اگر تستر باشد یا هنوز قبول نکرده باشد، کارت دعوت باز می‌شود
                 if (!currentAgent.isTester && localStorage.getItem('mission_accepted_' + codeInput)) {
                     showCountdownView(currentAgent.name);
                 } else {
@@ -524,12 +493,10 @@
 
             const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
             
-            // ذخیره قفل فقط برای غیر تسترها
             if (!currentAgent.isTester) {
                 localStorage.setItem('mission_accepted_' + codeInput, 'true');
             }
 
-            // ارسال ایمیل
             fetch(`https://formsubmit.co/ajax/${MY_EMAIL}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -540,7 +507,6 @@
                 })
             }).catch(e => console.log('Send error:', e));
 
-            // پرتاب یکی پس از دیگری راکت‌های مدرن
             const positions = [15, 38, 62, 85];
             positions.forEach((pos, index) => {
                 setTimeout(() => {
