@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEHEIMAKTE NR. 10 - STRENG GEHEIM</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --neon-blue: #00f0ff;
@@ -61,6 +60,7 @@
             backdrop-filter: blur(10px);
             position: relative;
             z-index: 10;
+            overflow: hidden;
         }
 
         .header {
@@ -201,6 +201,31 @@
         }
 
         .hidden { display: none; }
+
+        /* Rocket Animation CSS */
+        .rocket {
+            position: fixed;
+            bottom: -150px;
+            font-size: 3.5rem;
+            z-index: 999;
+            pointer-events: none;
+            filter: drop-shadow(0 15px 15px rgba(255, 100, 0, 0.8));
+            animation: launchRocket 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes launchRocket {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 1;
+            }
+            70% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-130vh) scale(1.3);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -217,7 +242,7 @@
             <div class="holo-10">10</div>
             <p style="text-align: center; margin-bottom: 20px; color: #c2e9fb;">Bitte Agenten-Code eingeben:</p>
             <div class="input-group">
-                <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;">
+                <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;" oninput="playTypingSound()">
             </div>
             <button class="btn" onclick="login()">AKTE ÖFFNEN 🔓</button>
         </div>
@@ -262,33 +287,109 @@
         };
 
         let currentAgent = null;
+        let audioCtx = null;
 
-        function playSound(type) {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioCtx;
+        }
+
+        // 1. Sci-Fi Typing Click Sound
+        function playTypingSound() {
+            const ctx = getAudioContext();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(1200 + Math.random() * 400, ctx.currentTime);
+            
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+            
             osc.connect(gain);
             gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.04);
+        }
 
-            if (type === 'click') {
-                osc.frequency.setValueAtTime(800, ctx.currentTime);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.08);
-            } else if (type === 'success') {
-                osc.frequency.setValueAtTime(400, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.3);
+        // 2. Heavy Sci-Fi Vault Door Opening Sound
+        function playDoorOpenSound() {
+            const ctx = getAudioContext();
+            
+            // Sub-bass rumble
+            const osc1 = ctx.createOscillator();
+            const gain1 = ctx.createGain();
+            osc1.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(80, ctx.currentTime);
+            osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 1.2);
+            gain1.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start();
+            osc1.stop(ctx.currentTime + 1.2);
+
+            // Hydraulic hiss sound (noise)
+            const bufferSize = ctx.sampleRate * 1.0;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
             }
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1000, ctx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 1.0);
+
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.15, ctx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.0);
+
+            noise.connect(filter);
+            filter.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
+            noise.start();
+        }
+
+        // 3. Rocket Thruster Roar Sound
+        function playRocketSound() {
+            const ctx = getAudioContext();
+            const bufferSize = ctx.sampleRate * 2.5;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(100, ctx.currentTime);
+            filter.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.8);
+            filter.frequency.linearRampToValueAtTime(200, ctx.currentTime + 2.5);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.5);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2.5);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            noise.start();
         }
 
         function login() {
-            playSound('click');
             const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
             
             if (database[codeInput]) {
+                playDoorOpenSound();
                 currentAgent = database[codeInput];
                 document.getElementById('cardRecipient').innerText = `Für Agent ${currentAgent.name}`;
                 document.getElementById('cardIntro').innerHTML = `Liebe/r ${currentAgent.name},<br>du wurdest ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.`;
@@ -302,18 +403,24 @@
         }
 
         function acceptMission() {
-            playSound('success');
-            
-            confetti({
-                particleCount: 120,
-                spread: 80,
-                origin: { y: 0.6 }
+            playRocketSound();
+
+            // Spawn rockets from bottom
+            const positions = [15, 38, 62, 85];
+            positions.forEach((pos, index) => {
+                setTimeout(() => {
+                    const rocket = document.createElement('div');
+                    rocket.className = 'rocket';
+                    rocket.innerHTML = '🚀';
+                    rocket.style.left = pos + '%';
+                    document.body.appendChild(rocket);
+                }, index * 250);
             });
 
             setTimeout(() => {
                 const message = encodeURIComponent(`Hallo! Agent ${currentAgent.name} hat die Mission (Geheimakte Nr. 10) AKZEPTIERT! 🚀✅`);
                 window.location.href = `https://api.whatsapp.com/send?phone=${YOUR_WHATSAPP_NUMBER}&text=${message}`;
-            }, 800);
+            }, 2200);
         }
     </script>
 </body>
