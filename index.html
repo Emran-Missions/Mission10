@@ -52,15 +52,14 @@
         .card {
             width: 100%;
             max-width: 520px;
-            background: rgba(13, 23, 42, 0.85);
+            background: rgba(13, 23, 42, 0.88);
             border: 2px solid var(--neon-blue);
             border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.35);
+            backdrop-filter: blur(12px);
             position: relative;
             z-index: 10;
-            overflow: hidden;
         }
 
         .header {
@@ -74,7 +73,7 @@
 
         .title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 900;
             color: var(--neon-blue);
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
@@ -119,13 +118,6 @@
             margin-bottom: 15px;
         }
 
-        .confidential {
-            color: #ff5588;
-            font-style: italic;
-            font-size: 0.88rem;
-            margin-bottom: 20px;
-        }
-
         .info-box {
             background: rgba(0, 240, 255, 0.08);
             border-left: 4px solid var(--neon-green);
@@ -144,19 +136,14 @@
         .info-item {
             margin-bottom: 6px;
             font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .input-group {
-            margin-bottom: 15px;
-        }
+        .input-group { margin-bottom: 15px; }
 
         input {
             width: 100%;
             padding: 12px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             border: 1px solid var(--neon-blue);
             color: #fff;
             font-family: 'Share Tech Mono', monospace;
@@ -168,7 +155,7 @@
 
         input:focus {
             border-color: var(--neon-green);
-            box-shadow: 0 0 10px rgba(0, 255, 157, 0.4);
+            box-shadow: 0 0 12px rgba(0, 255, 157, 0.5);
         }
 
         .btn {
@@ -197,34 +184,91 @@
             text-align: center;
             font-size: 0.95rem;
             margin-top: 15px;
-            text-transform: uppercase;
         }
 
-        .hidden { display: none; }
+        /* Countdown Style */
+        .countdown-title {
+            color: var(--neon-pink);
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
 
-        /* Rocket Animation CSS */
-        .rocket {
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .time-box {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            padding: 10px 5px;
+        }
+
+        .time-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: var(--neon-green);
+            font-weight: 800;
+        }
+
+        .time-label {
+            font-size: 0.7rem;
+            color: #8faec4;
+            margin-top: 4px;
+        }
+
+        .status-badge {
+            background: rgba(0, 255, 157, 0.15);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Straight Flying Rocket Animation */
+        .rocket-container {
             position: fixed;
-            bottom: -150px;
-            font-size: 3.5rem;
-            z-index: 999;
+            bottom: -200px;
+            z-index: 1000;
             pointer-events: none;
-            filter: drop-shadow(0 15px 15px rgba(255, 100, 0, 0.8));
-            animation: launchRocket 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: launchStraight 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
-        @keyframes launchRocket {
-            0% {
-                transform: translateY(0) scale(0.8);
-                opacity: 1;
-            }
-            70% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-130vh) scale(1.3);
-                opacity: 0;
-            }
+        .rocket-body { font-size: 4rem; }
+
+        .rocket-flame {
+            width: 14px;
+            height: 80px;
+            background: linear-gradient(to bottom, #fff, #ff9900, #ff0000, transparent);
+            border-radius: 50%;
+            box-shadow: 0 0 25px #ff5500;
+            animation: flicker 0.1s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; height: 70px; }
+            100% { opacity: 1; height: 90px; }
+        }
+
+        @keyframes launchStraight {
+            0% { transform: translateY(0); opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-140vh); opacity: 0; }
         }
     </style>
 </head>
@@ -254,9 +298,8 @@
                 <span class="stamp">STRENG GEHEIM</span>
             </div>
 
-            <div class="recipient" id="cardRecipient">Für...</div>
+            <div class="recipient" id="cardRecipient">Für Agent...</div>
             <div class="text-body" id="cardIntro">...</div>
-            <div class="confidential">Weitere Informationen sind leider streng vertraulich.</div>
 
             <div class="info-box">
                 <div class="info-title">FREIGEGEBENE INFORMATIONEN:</div>
@@ -268,12 +311,61 @@
 
             <div class="footer-call" id="cardFooter">WIR ZÄHLEN AUF DICH!</div>
             <br>
-            <button class="btn" onclick="acceptMission()">MISSION AKZEPTIEREN 🚀</button>
+            <button class="btn" id="acceptBtn" onclick="acceptMission()">MISSION AKZEPTIEREN 🚀</button>
+        </div>
+
+        <!-- ACCEPTED & COUNTDOWN VIEW -->
+        <div id="acceptedView" class="hidden">
+            <div class="header">
+                <span class="title">🔒 MISSION BESTÄTIGT</span>
+                <span class="stamp">AKTIV</span>
+            </div>
+
+            <div class="status-badge">
+                ✅ MISSION AKZEPTIERT VON AGENT <span id="acceptedAgentName"></span>
+            </div>
+
+            <div class="text-body" style="text-align: center; font-size: 1rem; color: #00ff9d; line-height: 1.6;">
+                ⚠️ <b>WICHTIGE MITTEILUNG:</b><br>
+                Du hast eine sehr wichtige Verantwortung übernommen. Die Operation ist nun aktiv und dein Platz ist reserviert!
+            </div>
+
+            <br>
+            <div class="countdown-title">⏳ COUNTDOWN BIS ZUR MISSION:</div>
+
+            <div class="timer-grid">
+                <div class="time-box">
+                    <div class="time-num" id="days">00</div>
+                    <div class="time-label">TAGE</div>
+                </div>
+                <div class="time-box">
+                    <div class="time-num" id="hours">00</div>
+                    <div class="time-label">STUNDEN</div>
+                </div>
+                <div class="time-box">
+                    <div class="time-num" id="minutes">00</div>
+                    <div class="time-label">MINUTEN</div>
+                </div>
+                <div class="time-box">
+                    <div class="time-num" id="seconds">00</div>
+                    <div class="time-label">SEKUNDEN</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; font-size: 0.85rem; color: #8faec4; margin-top: 15px;">
+                Sei pünktlich am Treffpunkt. Keine Ausreden! 🚀
+            </p>
         </div>
     </div>
 
+    <!-- AUDIO ELEMENTS WITH REAL SFX -->
+    <audio id="typingSfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+    <audio id="doorSfx" src="https://assets.mixkit.co/active_storage/sfx/884/884-preview.mp3" preload="auto"></audio>
+    <audio id="rocketSfx" src="https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3" preload="auto"></audio>
+
     <script>
-        const YOUR_WHATSAPP_NUMBER = '4915752084966'; 
+        // ✉️ ایمیل اصلی خودت را داخل کوتیشن زیر قرار بده (نیازی به ساخت هیچ اکانتی نیست!)
+        const MY_EMAIL = "emran.ali@outlook.de"; 
 
         const database = {
             'AFRA': { name: 'Afra' },
@@ -287,116 +379,43 @@
         };
 
         let currentAgent = null;
-        let audioCtx = null;
 
-        function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            return audioCtx;
-        }
-
-        // 1. Sci-Fi Typing Click Sound
         function playTypingSound() {
-            const ctx = getAudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1200 + Math.random() * 400, ctx.currentTime);
-            
-            gain.gain.setValueAtTime(0.05, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-            
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.04);
+            const sfx = document.getElementById('typingSfx');
+            sfx.currentTime = 0;
+            sfx.play().catch(()=>{});
         }
 
-        // 2. Heavy Sci-Fi Vault Door Opening Sound
-        function playDoorOpenSound() {
-            const ctx = getAudioContext();
-            
-            // Sub-bass rumble
-            const osc1 = ctx.createOscillator();
-            const gain1 = ctx.createGain();
-            osc1.type = 'sawtooth';
-            osc1.frequency.setValueAtTime(80, ctx.currentTime);
-            osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 1.2);
-            gain1.gain.setValueAtTime(0.3, ctx.currentTime);
-            gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
-            osc1.connect(gain1);
-            gain1.connect(ctx.destination);
-            osc1.start();
-            osc1.stop(ctx.currentTime + 1.2);
-
-            // Hydraulic hiss sound (noise)
-            const bufferSize = ctx.sampleRate * 1.0;
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            const noise = ctx.createBufferSource();
-            noise.buffer = buffer;
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(1000, ctx.currentTime);
-            filter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 1.0);
-
-            const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.15, ctx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.0);
-
-            noise.connect(filter);
-            filter.connect(noiseGain);
-            noiseGain.connect(ctx.destination);
-            noise.start();
+        function playDoorSound() {
+            const sfx = document.getElementById('doorSfx');
+            sfx.currentTime = 0;
+            sfx.play().catch(()=>{});
         }
 
-        // 3. Rocket Thruster Roar Sound
         function playRocketSound() {
-            const ctx = getAudioContext();
-            const bufferSize = ctx.sampleRate * 2.5;
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-
-            const noise = ctx.createBufferSource();
-            noise.buffer = buffer;
-
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(100, ctx.currentTime);
-            filter.frequency.linearRampToValueAtTime(800, ctx.currentTime + 0.8);
-            filter.frequency.linearRampToValueAtTime(200, ctx.currentTime + 2.5);
-
-            const gain = ctx.createGain();
-            gain.gain.setValueAtTime(0.05, ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.5);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2.5);
-
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(ctx.destination);
-            noise.start();
+            const sfx = document.getElementById('rocketSfx');
+            sfx.currentTime = 0;
+            sfx.play().catch(()=>{});
         }
 
         function login() {
             const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
             
             if (database[codeInput]) {
-                playDoorOpenSound();
+                playDoorSound();
                 currentAgent = database[codeInput];
-                document.getElementById('cardRecipient').innerText = `Für Agent ${currentAgent.name}`;
-                document.getElementById('cardIntro').innerHTML = `Liebe/r ${currentAgent.name},<br>du wurdest ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.`;
-                document.getElementById('cardFooter').innerText = `Wir zählen auf dich, Agent ${currentAgent.name}!`;
 
-                document.getElementById('loginView').classList.add('hidden');
-                document.getElementById('cardView').classList.remove('hidden');
+                // اگر قبلا قبول کرده، مستقیم برود روی شمارش معکوس
+                if (localStorage.getItem('mission_accepted_' + codeInput)) {
+                    showCountdownView(currentAgent.name);
+                } else {
+                    document.getElementById('cardRecipient').innerText = `Für Agent ${currentAgent.name}`;
+                    document.getElementById('cardIntro').innerHTML = `Liebe/r ${currentAgent.name},<br>du wurdest ausgewählt, an einer besonderen und geheimen Feier teilzunehmen.`;
+                    document.getElementById('cardFooter').innerText = `Wir zählen auf dich, Agent ${currentAgent.name}!`;
+
+                    document.getElementById('loginView').classList.add('hidden');
+                    document.getElementById('cardView').classList.remove('hidden');
+                }
             } else {
                 alert('🔴 UNGÜLTIGER CODE! Bitte versuchen Sie es erneut.');
             }
@@ -405,22 +424,66 @@
         function acceptMission() {
             playRocketSound();
 
-            // Spawn rockets from bottom
+            const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
+            localStorage.setItem('mission_accepted_' + codeInput, 'true');
+
+            // ارسال اتوماتیک و کاملا مخفیانه پیام به ایمیل شما بدون اکانت ساختن
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    access_key: MY_EMAIL, // ایمیل مستقیم شما
+                    subject: `🚀 BESTÄTIGUNG: Agent ${currentAgent.name} hat akzeptiert!`,
+                    from_name: "Geheimakte 10 Server",
+                    message: `Agent ${currentAgent.name} hat die Einladung zur Geheimakte Nr. 10 erfolgreich akzeptiert!`
+                })
+            }).catch(e => console.log('Silent send error:', e));
+
+            // پرتاب کاملا مستقیم راکت‌ها به سمت بالا
             const positions = [15, 38, 62, 85];
             positions.forEach((pos, index) => {
                 setTimeout(() => {
                     const rocket = document.createElement('div');
-                    rocket.className = 'rocket';
-                    rocket.innerHTML = '🚀';
+                    rocket.className = 'rocket-container';
                     rocket.style.left = pos + '%';
+                    rocket.innerHTML = '<div class="rocket-body">🚀</div><div class="rocket-flame"></div>';
                     document.body.appendChild(rocket);
-                }, index * 250);
+                }, index * 200);
             });
 
             setTimeout(() => {
-                const message = encodeURIComponent(`Hallo! Agent ${currentAgent.name} hat die Mission (Geheimakte Nr. 10) AKZEPTIERT! 🚀✅`);
-                window.location.href = `https://api.whatsapp.com/send?phone=${YOUR_WHATSAPP_NUMBER}&text=${message}`;
-            }, 2200);
+                showCountdownView(currentAgent.name);
+            }, 2500);
+        }
+
+        function showCountdownView(agentName) {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('cardView').classList.add('hidden');
+            document.getElementById('acceptedView').classList.remove('hidden');
+            document.getElementById('acceptedAgentName').innerText = agentName.toUpperCase();
+            startCountdown();
+        }
+
+        function startCountdown() {
+            // تاریخ هدف: ۳ اکتبر ساعت ۱۴:۰۰
+            const targetDate = new Date('October 3, 2026 14:00:00').getTime();
+
+            setInterval(() => {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference > 0) {
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                    document.getElementById('days').innerText = days < 10 ? '0' + days : days;
+                    document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+                    document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+                    document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+                }
+            }, 1000);
         }
     </script>
 </body>
