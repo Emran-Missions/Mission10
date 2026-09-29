@@ -236,7 +236,6 @@
 
         .hidden { display: none !important; }
 
-        /* ROCKET ANIMATION */
         .rocket-launch-wrapper {
             position: fixed;
             bottom: -250px;
@@ -331,7 +330,7 @@
 
             <div class="info-box">
                 <div class="info-title">FREIGEGEBENE INFORMATIONEN:</div>
-                <div class="info-item">📅 Samstag, 3. Oktober</div>
+                <div class="info-item">📅 Sonntag, 4. Oktober 2026</div>
                 <div class="info-item">🕑 14:00 Uhr</div>
                 <div class="info-item">📍 Krefelder Str. 81, 41539 Dormagen</div>
                 <div class="info-item">💫 Der Rest bleibt eine Überraschung...</div>
@@ -386,16 +385,9 @@
         </div>
     </div>
 
-    <!-- HIGH QUALITY AUDIO SOURCES -->
-    <!-- صدای سینمایی بلند ۴ ثانیه‌ای باز شدن دروازه فوق‌پنوئماتیک تکنولوژیک -->
-    <audio id="vaultGateSfx" src="https://assets.mixkit.co/active_storage/sfx/2874/2874-preview.mp3" preload="auto"></audio>
-    <!-- صدای واقعی غرش موتور راکت و فوران آتش -->
-    <audio id="rocketThrustSfx" src="https://assets.mixkit.co/active_storage/sfx/1712/1712-preview.mp3" preload="auto"></audio>
-
     <script>
-        const MY_EMAIL = "emran.ali@outlook.de"; // ایمیل خودت را بنویس
+        const MY_EMAIL = "emran.ali@outlook.de"; 
 
-        // پاکسازی اتوماتیک حافظه هنگام بارگذاری مجدد کدها تا افرا قفل نباشد
         localStorage.clear();
 
         const database = {
@@ -428,7 +420,7 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.04);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
@@ -439,15 +431,74 @@
         }
 
         function playGateOpenSound() {
-            const sfx = document.getElementById('vaultGateSfx');
-            sfx.currentTime = 0;
-            sfx.play().catch(()=>{});
+            initAudio();
+            if(!audioCtx) return;
+
+            const bufferSize = audioCtx.sampleRate * 1.5;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 1.2);
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+
+            noise.connect(filter);
+            filter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            noise.start();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.0);
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.0);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.0);
         }
 
         function playRocketSound() {
-            const sfx = document.getElementById('rocketThrustSfx');
-            sfx.currentTime = 0;
-            sfx.play().catch(()=>{});
+            initAudio();
+            if(!audioCtx) return;
+
+            const bufferSize = audioCtx.sampleRate * 2.8;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(120, audioCtx.currentTime);
+            filter.frequency.linearRampToValueAtTime(900, audioCtx.currentTime + 0.8);
+            filter.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 2.8);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.8);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start();
         }
 
         function playTickSound() {
@@ -535,7 +586,7 @@
         }
 
         function startCountdown() {
-            const targetDate = new Date('October 3, 2026 14:00:00').getTime();
+            const targetDate = new Date('October 4, 2026 14:00:00').getTime();
 
             setInterval(() => {
                 const now = new Date().getTime();
