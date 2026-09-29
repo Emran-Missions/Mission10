@@ -237,38 +237,76 @@
 
         .hidden { display: none !important; }
 
-        /* Straight Flying Rocket Animation */
-        .rocket-container {
+        /* MODERN 3D ROCKET CSS */
+        .rocket-launch-wrapper {
             position: fixed;
-            bottom: -200px;
-            z-index: 1000;
+            bottom: -250px;
+            z-index: 9999;
             pointer-events: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: launchStraight 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation: launchStraightUp 3.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .rocket-body { font-size: 4rem; }
+        .cyber-rocket {
+            width: 24px;
+            height: 90px;
+            background: linear-gradient(to right, #e6e6e6, #ffffff, #888888);
+            border-radius: 50% 50% 10% 10% / 70% 70% 10% 10%;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+        }
 
-        .rocket-flame {
-            width: 14px;
-            height: 80px;
-            background: linear-gradient(to bottom, #fff, #ff9900, #ff0000, transparent);
+        .cyber-rocket::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 25px solid #ff0055;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .cyber-rocket::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: -10px; right: -10px;
+            height: 20px;
+            background: #111;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+        }
+
+        .fire-thruster {
+            width: 16px;
+            height: 120px;
+            background: linear-gradient(to bottom, #ffffff, #ffcc00, #ff3300, transparent);
             border-radius: 50%;
-            box-shadow: 0 0 25px #ff5500;
-            animation: flicker 0.1s infinite alternate;
+            box-shadow: 0 0 30px #ff3300, 0 0 60px #ffaa00;
+            animation: thrusterPulse 0.08s infinite alternate;
+            margin-top: -5px;
         }
 
-        @keyframes flicker {
-            0% { opacity: 0.8; height: 70px; }
-            100% { opacity: 1; height: 90px; }
+        .smoke-cloud {
+            width: 40px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(200,200,200,0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(8px);
+            margin-top: -60px;
         }
 
-        @keyframes launchStraight {
+        @keyframes thrusterPulse {
+            0% { transform: scaleX(0.8) scaleY(0.9); opacity: 0.8; }
+            100% { transform: scaleX(1.2) scaleY(1.1); opacity: 1; }
+        }
+
+        @keyframes launchStraightUp {
             0% { transform: translateY(0); opacity: 1; }
-            80% { opacity: 1; }
-            100% { transform: translateY(-140vh); opacity: 0; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-150vh); opacity: 0; }
         }
     </style>
 </head>
@@ -286,7 +324,7 @@
             <div class="holo-10">10</div>
             <p style="text-align: center; margin-bottom: 20px; color: #c2e9fb;">Bitte Agenten-Code eingeben:</p>
             <div class="input-group">
-                <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;" oninput="playTypingSound()">
+                <input type="text" id="agentCode" placeholder="CODE EINGEBEN..." style="text-transform: uppercase;" oninput="playTypingGateSound()">
             </div>
             <button class="btn" onclick="login()">AKTE ÖFFNEN 🔓</button>
         </div>
@@ -358,14 +396,19 @@
         </div>
     </div>
 
-    <!-- AUDIO ELEMENTS WITH REAL SFX -->
-    <audio id="typingSfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
-    <audio id="doorSfx" src="https://assets.mixkit.co/active_storage/sfx/884/884-preview.mp3" preload="auto"></audio>
+    <!-- SOUND EFFECTS -->
+    <!-- صدای تایپ: صدای سنگین باز شدن هیدرولیکی دروازه -->
+    <audio id="typingGateSfx" src="https://assets.mixkit.co/active_storage/sfx/884/884-preview.mp3" preload="auto"></audio>
+    <!-- صدای باز شدن کامل اکتیو پرونده: صدای حماسی باز شدن سیستم فوق سری -->
+    <audio id="vaultOpenSfx" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
+    <!-- صدای موتور راکت -->
     <audio id="rocketSfx" src="https://assets.mixkit.co/active_storage/sfx/2014/2014-preview.mp3" preload="auto"></audio>
+    <!-- صدای تیک تاک تایمر -->
+    <audio id="tickSfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
     <script>
-        // ✉️ ایمیل اصلی خودت را داخل کوتیشن زیر قرار بده (نیازی به ساخت هیچ اکانتی نیست!)
-        const MY_EMAIL = "emran.ali@outlook.de"; 
+        // ✉️ آدرس ایمیل خودت را دقیقاً جایگزین کن (بدون نیاز به ساخت اکانت)
+        const MY_EMAIL = "emran.ali@outlook.de";
 
         const database = {
             'AFRA': { name: 'Afra' },
@@ -380,14 +423,14 @@
 
         let currentAgent = null;
 
-        function playTypingSound() {
-            const sfx = document.getElementById('typingSfx');
+        function playTypingGateSound() {
+            const sfx = document.getElementById('typingGateSfx');
             sfx.currentTime = 0;
             sfx.play().catch(()=>{});
         }
 
-        function playDoorSound() {
-            const sfx = document.getElementById('doorSfx');
+        function playVaultOpenSound() {
+            const sfx = document.getElementById('vaultOpenSfx');
             sfx.currentTime = 0;
             sfx.play().catch(()=>{});
         }
@@ -398,14 +441,19 @@
             sfx.play().catch(()=>{});
         }
 
+        function playTickSound() {
+            const sfx = document.getElementById('tickSfx');
+            sfx.currentTime = 0;
+            sfx.play().catch(()=>{});
+        }
+
         function login() {
             const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
             
             if (database[codeInput]) {
-                playDoorSound();
+                playVaultOpenSound();
                 currentAgent = database[codeInput];
 
-                // اگر قبلا قبول کرده، مستقیم برود روی شمارش معکوس
                 if (localStorage.getItem('mission_accepted_' + codeInput)) {
                     showCountdownView(currentAgent.name);
                 } else {
@@ -427,33 +475,40 @@
             const codeInput = document.getElementById('agentCode').value.trim().toUpperCase();
             localStorage.setItem('mission_accepted_' + codeInput, 'true');
 
-            // ارسال اتوماتیک و کاملا مخفیانه پیام به ایمیل شما بدون اکانت ساختن
-            fetch('https://api.web3forms.com/submit', {
+            // ارسال پیام مستقیم به ایمیل شما با FormSubmit
+            fetch(`https://formsubmit.co/ajax/${MY_EMAIL}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
-                    access_key: MY_EMAIL, // ایمیل مستقیم شما
-                    subject: `🚀 BESTÄTIGUNG: Agent ${currentAgent.name} hat akzeptiert!`,
-                    from_name: "Geheimakte 10 Server",
-                    message: `Agent ${currentAgent.name} hat die Einladung zur Geheimakte Nr. 10 erfolgreich akzeptiert!`
+                    Subject: `🚀 BESTÄTIGUNG: Agent ${currentAgent.name} hat akzeptiert!`,
+                    Agent: currentAgent.name,
+                    Status: "Einladung Akzeptiert",
+                    Zeitstempel: new Date().toLocaleString()
                 })
-            }).catch(e => console.log('Silent send error:', e));
+            }).catch(e => console.log('Send error:', e));
 
-            // پرتاب کاملا مستقیم راکت‌ها به سمت بالا
+            // پرتاب یکی پس از دیگری راکت‌های مدرن ۳D مستقیم به سمت بالا
             const positions = [15, 38, 62, 85];
             positions.forEach((pos, index) => {
                 setTimeout(() => {
-                    const rocket = document.createElement('div');
-                    rocket.className = 'rocket-container';
-                    rocket.style.left = pos + '%';
-                    rocket.innerHTML = '<div class="rocket-body">🚀</div><div class="rocket-flame"></div>';
-                    document.body.appendChild(rocket);
-                }, index * 200);
+                    const rocketWrap = document.createElement('div');
+                    rocketWrap.className = 'rocket-launch-wrapper';
+                    rocketWrap.style.left = pos + '%';
+                    rocketWrap.innerHTML = `
+                        <div class="cyber-rocket"></div>
+                        <div class="fire-thruster"></div>
+                        <div class="smoke-cloud"></div>
+                    `;
+                    document.body.appendChild(rocketWrap);
+                }, index * 350); // پرتاب با تاخیر منظم یکی پس از دیگری
             });
 
             setTimeout(() => {
                 showCountdownView(currentAgent.name);
-            }, 2500);
+            }, 3000);
         }
 
         function showCountdownView(agentName) {
@@ -465,7 +520,6 @@
         }
 
         function startCountdown() {
-            // تاریخ هدف: ۳ اکتبر ساعت ۱۴:۰۰
             const targetDate = new Date('October 3, 2026 14:00:00').getTime();
 
             setInterval(() => {
@@ -482,6 +536,9 @@
                     document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
                     document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
                     document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+
+                    // پخش صدای تیک تاک در هر ثانیه
+                    playTickSound();
                 }
             }, 1000);
         }
